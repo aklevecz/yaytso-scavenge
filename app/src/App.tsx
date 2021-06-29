@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const loader = new Loader({
-  apiKey: "AIzaSyDb2g6i-IS8JNI6ihW6NakNJ1CTdBaIxXg",
+  apiKey: process.env.REACT_APP_GMAP_KEY as string,
   version: "weekly",
 });
 
