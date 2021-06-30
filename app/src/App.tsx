@@ -1,37 +1,10 @@
-import { Loader } from "@googlemaps/js-api-loader";
-import { useEffect, useRef, useState } from "react";
 import "./App.css";
-
-const loader = new Loader({
-  apiKey: process.env.REACT_APP_GMAP_KEY as string,
-  version: "weekly",
-});
-
-const DEFAULT_LAT = 34.04362997897908;
-const DEFAULT_LNG = -118.2376335045432;
+import Map from "./containers/Map";
 
 function App() {
-  // const [map, setMap] = useState<google.maps.Map>();
-  // const mapContainer = useRef<HTMLDivElement>(null);
-  // useEffect(() => {
-  //   let map: google.maps.Map;
-  //   loader.load().then(() => {
-  //     if (!mapContainer.current) {
-  //       return console.error("map container missing");
-  //     }
-  //     map = new google.maps.Map(mapContainer.current, {
-  //       zoom: 15,
-  //       center: {
-  //         lat: DEFAULT_LAT,
-  //         lng: DEFAULT_LNG,
-  //       },
-  //     });
-  //     setMap(map);
-  //   });
-  // }, []);
   return (
     <div className="App">
-      {/* <div style={{ width: "100%", height: "100%" }} ref={mapContainer}></div> */}
+      <Map />
     </div>
   );
 }

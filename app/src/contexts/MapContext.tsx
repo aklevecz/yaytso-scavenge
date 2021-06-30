@@ -1,11 +1,12 @@
 import {
   createContext,
+  useCallback,
   useContext,
-  useEffect,
   useReducer,
   useRef,
 } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
+import silverMap from "../silverMap.json";
 
 type Action =
   | { type: "createMarker" }
@@ -70,13 +71,14 @@ export const useMap = () => {
   }
 
   const { dispatch } = context;
-  const initMap = () => {
+  const initMap = useCallback(() => {
     loader.load().then(() => {
       if (!mapContainer.current) {
         return console.error("map container missing");
       }
       const map = new google.maps.Map(mapContainer.current, {
         zoom: 15,
+        styles: silverMap,
         center: {
           lat: DEFAULT_LAT,
           lng: DEFAULT_LNG,
@@ -84,7 +86,7 @@ export const useMap = () => {
       });
       dispatch({ type: "initMap", map });
     });
-  };
+  }, [dispatch]);
 
-  return { mapContainer };
+  return { mapContainer, initMap };
 };

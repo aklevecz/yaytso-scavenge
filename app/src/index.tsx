@@ -3,13 +3,16 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { ContractProvider } from "./contexts/ContractContext";
 import { MapProvider } from "./contexts/MapContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <MapProvider>
-      <App />
-    </MapProvider>
+    <ContractProvider>
+      <MapProvider>
+        <App />
+      </MapProvider>
+    </ContractProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
