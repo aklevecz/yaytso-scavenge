@@ -1,0 +1,7 @@
+.nav__container {
+  grid-area: lbottom / lbottom / rbottom / rbottom;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  pointer-events: all;
+}

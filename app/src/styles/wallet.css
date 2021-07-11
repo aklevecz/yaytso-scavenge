@@ -1,0 +1,17 @@
+.wallet__root {
+  width: 100%;
+  height: 100%;
+  /* background-color: red; */
+}
+
+.wallet__container {
+  display: grid;
+  grid-template-rows: 150px 1fr 150px;
+  height: 100%;
+}
+
+.wallet__address {
+  word-break: break-all;
+  width: 225px;
+  font-size: 18px;
+}

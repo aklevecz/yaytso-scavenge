@@ -101,4 +101,17 @@ contract Carton {
         Boxes[_boxId] = _box;
         emit YaytsoClaimed(_boxId, _yaytsoId, msg.sender);
     }
+
+    function unlockBox(uint256 _boxId) public {
+        Box memory _box = Boxes[_boxId];
+        _box.locked = false;
+        Boxes[_boxId] = _box;
+    }
+
+    function jamBox(uint256 _boxId, uint256 _tokenId) public {
+        Box memory _box = Boxes[_boxId];
+        boxIdToTokenId[_boxId] = _tokenId;
+        _box.locked = true;
+        Boxes[_boxId] = _box;
+    }
 }

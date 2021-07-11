@@ -1,10 +1,12 @@
 import "./App.css";
-import Map from "./containers/Map";
+import Routes from "./Routes";
+import Modal from "./containers/Modal";
 
 function App() {
   return (
     <div className="App">
-      <Map />
+      <Routes />
+      <Modal />
     </div>
   );
 }

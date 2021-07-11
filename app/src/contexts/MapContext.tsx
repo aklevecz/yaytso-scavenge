@@ -2,28 +2,51 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import silverMap from "../silverMap.json";
+import silverMap from "../assets/silverMap.json";
+import cartonSVG from "../assets/carton.svg";
+import cartonEmptySVG from "../assets/carton-empty.svg";
+import smilerSVG from "../assets/smiler.svg";
+import { Carton, Marker, MarkerType, ModalTypes, Position } from "./types";
+import { useCartons } from "./CartonContext";
+import { useOpenModal } from "./ModalContext";
+import { delay, getMarker } from "./utils";
 
 type Action =
   | { type: "createMarker" }
-  | { type: "initMap"; map: google.maps.Map };
+  | { type: "initMap"; map: google.maps.Map }
+  | { type: "updateUserPosition"; userLocation: Position }
+  | { type: "updateMarkers"; markerType: MarkerType; markers: Array<Marker> }
+  | {
+      type: "collectIconSelectors";
+      iconType: string;
+      icons: Array<HTMLElement>;
+    };
 
 type Dispatch = (action: Action) => void;
 
 type State = {
-  markers: Array<google.maps.Marker>;
+  loading: boolean;
+  markers: Record<MarkerType, Array<Marker>>;
+  icons: Record<string, Array<HTMLElement> | HTMLElement | undefined>;
   map: google.maps.Map | undefined;
   mapContainer: HTMLDivElement | undefined;
+  userLocation: Position;
 };
 
 const initialState = {
-  markers: [],
+  loading: true,
+  markers: { cartons: [], users: [] },
+  icons: { cartons: [], user: undefined },
   map: undefined,
   mapContainer: undefined,
+  userLocation: { lat: undefined, lng: undefined },
 };
 
 const MapContext = createContext<
@@ -32,10 +55,15 @@ const MapContext = createContext<
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
-    case "createMarker":
-      return { ...state, markers: [] };
+    case "updateMarkers":
+      return {
+        ...state,
+        markers: { ...state.markers, [action.markerType]: action.markers },
+      };
     case "initMap":
-      return { ...state, map: action.map };
+      return { ...state, map: action.map, loading: false };
+    case "updateUserPosition":
+      return { ...state, userLocation: action.userLocation };
     default:
       return state;
   }
@@ -46,8 +74,8 @@ const loader = new Loader({
   version: "weekly",
 });
 
-const DEFAULT_LAT = 34.04362997897908;
-const DEFAULT_LNG = -118.2376335045432;
+const DEFAULT_LAT = 40.71431024435831;
+const DEFAULT_LNG = -73.9611631258235;
 
 const MapProvider = ({
   children,
@@ -65,19 +93,20 @@ export { MapContext, MapProvider };
 export const useMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const context = useContext(MapContext);
+  const cartons = useCartons();
 
   if (context === undefined) {
     throw new Error("must be within its provider: User");
   }
 
-  const { dispatch } = context;
+  const { dispatch, state } = context;
   const initMap = useCallback(() => {
     loader.load().then(() => {
       if (!mapContainer.current) {
         return console.error("map container missing");
       }
       const map = new google.maps.Map(mapContainer.current, {
-        zoom: 15,
+        zoom: 13,
         styles: silverMap,
         center: {
           lat: DEFAULT_LAT,
@@ -85,8 +114,139 @@ export const useMap = () => {
         },
       });
       dispatch({ type: "initMap", map });
+
+      map.addListener("click", (mapsMouseEvent: any) => {
+        console.log(mapsMouseEvent.latLng.toJSON());
+      });
     });
   }, [dispatch]);
 
-  return { mapContainer, initMap };
+  // MAYBE MOVE THIS
+  // const { isLocked, getCartonsYaytsoMeta } = useCartonInfo();
+  const openModal = useOpenModal();
+  useEffect(() => {
+    if (cartons.length > 0 && state.map) {
+      const cartonMarkers = cartons.map((carton: Carton) => {
+        const cartonMarker = new google.maps.Marker({
+          position: {
+            lat: parseFloat(carton.lat),
+            lng: parseFloat(carton.lng),
+          },
+          icon: !carton.locked
+            ? `${cartonEmptySVG}#cartonId=${carton.id}`
+            : `${cartonSVG}#cartonId=${carton.id}`,
+          map: state.map,
+          optimized: false,
+        });
+        cartonMarker.addListener("click", async () => {
+          openModal(ModalTypes.CartonContent, { cartonId: carton.id });
+        });
+        return { marker: cartonMarker, type: "carton" };
+      });
+
+      dispatch({
+        type: "updateMarkers",
+        markerType: "cartons",
+        markers: cartonMarkers,
+      });
+    }
+  }, [cartons, state.map]);
+
+  // Shitty marker collection for cartons
+  useEffect(() => {
+    if (cartons) {
+      setTimeout(() => {
+        const cartonIcons: Array<HTMLImageElement> = [];
+        cartons.forEach((carton: Carton) => {
+          const cartonDom = document.querySelector(
+            `img[src='${cartonSVG}#cartonId=${carton.id}']`
+          ) as HTMLImageElement;
+          if (cartonDom) {
+            cartonIcons.push(cartonDom);
+          }
+        });
+
+        dispatch({
+          type: "collectIconSelectors",
+          iconType: "carton",
+          icons: cartonIcons,
+        });
+      }, 5000);
+    }
+  }, [cartons]);
+
+  return { mapContainer, initMap, loading: state.loading };
+};
+
+export const useUserLocation = () => {
+  const context = useContext(MapContext);
+
+  if (context === undefined) {
+    throw new Error("Map Context error in UserLocation hook");
+  }
+  const { dispatch, state } = context;
+
+  const createUserMarker = async (lat: number, lng: number) => {
+    const position = { lat, lng };
+    const userMarker = new google.maps.Marker({
+      position: position,
+      icon: smilerSVG,
+      map: state.map,
+      optimized: false,
+    });
+
+    dispatch({
+      type: "updateMarkers",
+      markerType: "users",
+      markers: [{ marker: userMarker, type: "user" }],
+    });
+
+    const markerDom = await getMarker(`img[src='${smilerSVG}']`);
+    delay(100, () => {
+      markerDom.classList.add("pulse");
+      dispatch({
+        type: "collectIconSelectors",
+        iconType: "user",
+        icons: [markerDom],
+      });
+    });
+  };
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          const userLoc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          dispatch({ type: "updateUserPosition", userLocation: userLoc });
+          if (!state.userLocation.lat && state.map) {
+            state.map.panTo(userLoc as google.maps.LatLngLiteral);
+            createUserMarker(userLoc.lat, userLoc.lng);
+          }
+        }
+      );
+    }
+  };
+
+  const recenter = () => {
+    state.map &&
+      state.map.panTo(state.userLocation as google.maps.LatLngLiteral);
+  };
+
+  useEffect(() => {
+    if (state.map && state.markers.users[0]) {
+      state.markers.users[0].marker.setPosition(
+        state.userLocation as google.maps.LatLngLiteral
+      );
+    }
+  }, [state.userLocation]);
+
+  return {
+    getUserLocation,
+    userLocation: state.userLocation,
+    createUserMarker,
+    recenter,
+  };
 };

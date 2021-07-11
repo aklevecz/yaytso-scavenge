@@ -1,23 +1,26 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
+import "./styles/modal.css";
+import "./styles/overlay.css";
+import "./styles/nav.css";
+import "./styles/wallet.css";
+
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import { ContractProvider } from "./contexts/ContractContext";
 import { MapProvider } from "./contexts/MapContext";
+import { ModalProvider } from "./contexts/ModalContext";
+import { CartonProvider } from "./contexts/CartonContext";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <ModalProvider>
     <ContractProvider>
-      <MapProvider>
-        <App />
-      </MapProvider>
+      <CartonProvider>
+        <MapProvider>
+          <App />
+        </MapProvider>
+      </CartonProvider>
     </ContractProvider>
-  </React.StrictMode>,
+  </ModalProvider>,
   document.getElementById("root")
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
