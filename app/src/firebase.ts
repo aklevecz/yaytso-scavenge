@@ -3,7 +3,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/functions";
 
-const firebaseConfig = require("firebase.json");
+const firebaseConfig = require("./firebase-config.json");
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
