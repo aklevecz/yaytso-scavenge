@@ -1,15 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createContext, useContext, useReducer } from "react";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from "three";
-import { useState } from "react";
 import { useCallback } from "react";
 
 import yaytso from "../assets/yaytso.gltf";
+import { usePattern } from "./PatternContext";
 
-type Entity = THREE.Mesh | THREE.Group;
+type LoadedObject = THREE.Mesh | THREE.Group | GLTF;
+
+type Entity = {
+  object: LoadedObject;
+  name: string;
+};
 
 type Action =
   | {
@@ -66,9 +70,13 @@ const reducer = (state: State, action: Action) => {
         controls: action.controls,
       };
     case "ADD_ENITITIES":
+      const newEntities = action.entities.map((entity: Entity) => entity.name);
+      const entityState = state.entities.filter(
+        (entity: Entity) => !newEntities.includes(entity.name)
+      );
       return {
         ...state,
-        entities: [...state.entities, ...action.entities],
+        entities: [...entityState, ...action.entities],
       };
     default:
       return state;
@@ -82,25 +90,28 @@ const ThreeProvider = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const loadGLTF = (path: string) => {
-    const loader = new GLTFLoader();
-    loader.load(path, (object: any) => {
-      if (state.scene === undefined) {
-        return console.log("no scene");
-      }
-      console.log(object);
-      object.scene.scale.set(0.1, 0.1, 0.1);
-      // This could be removed and they could just be loaded first
-      state.scene.add(object.scene);
-      console.log("adding aegg");
-      dispatch({ type: "ADD_ENITITIES", entities: [object] });
-    });
-  };
+  const loadGLTF = useCallback(
+    (path: string) => {
+      const loader = new GLTFLoader();
+      loader.load(path, (object: GLTF) => {
+        if (state.scene === undefined) {
+          return console.log("no scene");
+        }
+        object.scene.scale.set(0.1, 0.1, 0.1);
+        // This could be removed and they could just be loaded first
+        state.scene.add(object.scene);
+        dispatch({
+          type: "ADD_ENITITIES",
+          entities: [{ object, name: "egg" }],
+        });
+      });
+    },
+    [dispatch, state.scene]
+  );
 
   useEffect(() => {
-    console.log("loading", state.scene);
     loadGLTF(yaytso);
-  }, [state.scene]);
+  }, [state.scene, loadGLTF]);
 
   const value = { state, dispatch };
   return (
@@ -111,14 +122,32 @@ const ThreeProvider = ({
 export { ThreeContext, ThreeProvider };
 
 export const useThreeScene = () => {
-  const [previousRAF, setPreviousRAF] = useState(0);
+  // const [previousRAF, setPreviousRAF] = useState(0);
+  const pattern = usePattern();
+  let previousRAF = useRef(0).current;
   const context = useContext(ThreeContext);
-
   if (context === undefined) {
     throw new Error("Three Context error in ThreeScene hook");
   }
 
   const { dispatch, state } = context;
+
+  useEffect(() => {
+    if (pattern) {
+      const object = state.entities.find(
+        (entity: Entity) => entity.name === "egg"
+      );
+      if (!object) {
+        return console.error("Could not find egg");
+      }
+
+      const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
+      const eggMaterial = egg.material as THREE.MeshBasicMaterial;
+      eggMaterial.map = pattern;
+      eggMaterial.color = new THREE.Color(1, 1, 1);
+      eggMaterial.needsUpdate = true;
+    }
+  }, [pattern, state.entities]);
 
   const initScene = useCallback(
     (container: HTMLDivElement) => {
@@ -126,32 +155,33 @@ export const useThreeScene = () => {
       const { width, height } = container.getBoundingClientRect();
       const windowAspect = width / height;
       renderer.setSize(width, height);
-      renderer.physicallyCorrectLights = true;
+      renderer.setClearColor(0xffffff);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      // renderer.physicallyCorrectLights = true;
       renderer.outputEncoding = THREE.sRGBEncoding;
       const domElement = renderer.domElement;
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(65, windowAspect, 0.1, 1000);
-      camera.position.z = 2.2;
+      camera.position.z = 0.3;
 
       const controls = new OrbitControls(camera, domElement);
       controls.autoRotate = true;
       controls.update();
 
-      const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
-      scene.add(light);
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x080820, 0.6);
+      scene.add(hemi);
 
-      const ambient = new THREE.AmbientLight(0xfffff, 1);
+      const ambient = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambient);
-
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      const cube = new THREE.Mesh(geometry, material);
-      // scene.add(cube);
 
       dispatch({ type: "INIT", renderer, scene, camera, domElement, controls });
 
       container.appendChild(domElement);
+
+      return () => {
+        domElement.remove();
+      };
     },
     [dispatch]
   );
@@ -179,7 +209,8 @@ export const useThreeScene = () => {
         step(t - _previousRAF);
         state.renderer.render(state.scene, state.camera);
         state.controls && state.controls.update();
-        setPreviousRAF(_previousRAF);
+        previousRAF = _previousRAF;
+        // setPreviousRAF(_previousRAF);
       }
       setTimeout(() => RAF(), 1);
     });
@@ -190,8 +221,7 @@ export const useThreeScene = () => {
       RAF();
     }
 
-    return () =>
-      cancelAnimationFrame(state.previousRAF ? state.previousRAF : 0);
+    return () => cancelAnimationFrame(previousRAF ? previousRAF : 0);
     //eslint-disable-next-line
   }, [state.renderer]);
 

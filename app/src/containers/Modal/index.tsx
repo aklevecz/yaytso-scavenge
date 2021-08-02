@@ -9,10 +9,12 @@ import {
 import Info from "./Info";
 import CartonContent from "./CartonContent";
 import { useEffect, useState } from "react";
+import EggMaker from "./EggMaker";
 
 const modalMap = {
   info: <Info />,
   cartonContent: <CartonContent />,
+  eggMaker: <EggMaker />,
 };
 
 export default function Modal() {

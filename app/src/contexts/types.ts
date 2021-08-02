@@ -1,6 +1,7 @@
 export enum ModalTypes {
   Info = "info",
   CartonContent = "cartonContent",
+  EggMaker = "eggMaker",
 }
 
 export type Position = {

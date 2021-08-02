@@ -1,0 +1,17 @@
+.egg__container {
+  display: grid;
+  grid-template-rows: 1fr 20%;
+  height: 100%;
+}
+
+.canvas__container {
+  display: flex;
+  align-items: center;
+}
+
+.upload-label {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}

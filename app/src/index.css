@@ -38,3 +38,18 @@ button.btn {
   width: 130px;
   height: 50px;
 }
+
+input[type="file"] {
+  display: none;
+}
+
+input[type="text"] {
+  width: 90%;
+  height: 40px;
+  display: block;
+  border: 2px solid;
+  border-radius: 10px;
+  font-size: 18px;
+  padding: 0px 10px;
+  margin: 0px 0px 18px;
+}
