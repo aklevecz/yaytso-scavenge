@@ -2,11 +2,13 @@ import { createContext, useContext, useReducer } from "react";
 import { CanvasTexture } from "three";
 import { createCanvas, createTexture } from "./utils";
 
-type Action = {
-  type: "SET_PATTERN";
-  pattern: CanvasTexture;
-  canvas: HTMLCanvasElement;
-};
+type Action =
+  | {
+      type: "SET_PATTERN";
+      pattern: CanvasTexture;
+      canvas: HTMLCanvasElement;
+    }
+  | { type: "CLEAR_PATTERN" };
 
 type Dispatch = (action: Action) => void;
 
@@ -28,6 +30,8 @@ const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "SET_PATTERN":
       return { ...state, pattern: action.pattern, canvas: action.canvas };
+    case "CLEAR_PATTERN":
+      return { ...state, pattern: null, canvas: null };
     default:
       return state;
   }
@@ -48,14 +52,14 @@ const PatternProvider = ({
 
 export { PatternContext, PatternProvider };
 
-export const useUploadPattern = () => {
+export const useUpdatePattern = () => {
   const context = useContext(PatternContext);
 
   if (context === undefined) {
     throw new Error("must be within its provider: User");
   }
 
-  const { dispatch } = context;
+  const { dispatch, state } = context;
 
   const uploadPattern = (e: React.FormEvent<HTMLInputElement>) => {
     const files = (e.target as HTMLInputElement).files;
@@ -74,11 +78,15 @@ export const useUploadPattern = () => {
       }
       const canvas = await createCanvas(e.target.result);
       const pattern = createTexture(canvas, 7);
+      console.log(pattern, canvas);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
     };
     reader.readAsDataURL(file);
   };
-  return { uploadPattern };
+
+  const clearPattern = () => dispatch({ type: "CLEAR_PATTERN" });
+
+  return { clearPattern, uploadPattern, pattern: state.pattern };
 };
 
 export const usePattern = () => {

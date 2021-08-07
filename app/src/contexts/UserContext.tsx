@@ -64,3 +64,14 @@ export const useUpdateEgg = () => {
 
   return { updateEgg };
 };
+
+export const useCustomEgg = () => {
+  const context = useContext(UserContext);
+
+  if (context === undefined) {
+    throw new Error("User Context error in CustomEgg hook");
+  }
+
+  const { dispatch, state } = context;
+  return state.egg;
+};

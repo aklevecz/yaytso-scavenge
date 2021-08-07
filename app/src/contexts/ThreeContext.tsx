@@ -7,12 +7,14 @@ import { useCallback } from "react";
 
 import yaytso from "../assets/yaytso.gltf";
 import { usePattern } from "./PatternContext";
+import { CanvasTexture } from "three";
 
 type LoadedObject = THREE.Mesh | THREE.Group | GLTF;
 
 type Entity = {
   object: LoadedObject;
   name: string;
+  pattern?: CanvasTexture;
 };
 
 type Action =
@@ -24,7 +26,13 @@ type Action =
       domElement: HTMLElement;
       controls: OrbitControls;
     }
-  | { type: "ADD_ENITITIES"; entities: Entity[] };
+  | { type: "ADD_ENITITIES"; entities: Entity[] }
+  | {
+      type: "UPDATE_ENTITY";
+      name: string;
+      key: "object" | "name" | "pattern";
+      value: any;
+    };
 
 type Dispatch = (action: Action) => void;
 
@@ -78,6 +86,15 @@ const reducer = (state: State, action: Action) => {
         ...state,
         entities: [...entityState, ...action.entities],
       };
+    case "UPDATE_ENTITY":
+      const entity = state.entities.find(
+        (entity: Entity) => entity.name === action.name
+      );
+      if (!entity) {
+        return state;
+      }
+      entity[action.key] = action.value;
+      return { ...state, entities: [...state.entities, entity] };
     default:
       return state;
   }
@@ -133,20 +150,21 @@ export const useThreeScene = () => {
   const { dispatch, state } = context;
 
   useEffect(() => {
+    const object = state.entities.find(
+      (entity: Entity) => entity.name === "egg"
+    );
+    if (!object) {
+      return console.error("Could not find egg");
+    }
+    const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
+    const eggMaterial = egg.material as THREE.MeshBasicMaterial;
     if (pattern) {
-      const object = state.entities.find(
-        (entity: Entity) => entity.name === "egg"
-      );
-      if (!object) {
-        return console.error("Could not find egg");
-      }
-
-      const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
-      const eggMaterial = egg.material as THREE.MeshBasicMaterial;
       eggMaterial.map = pattern;
       eggMaterial.color = new THREE.Color(1, 1, 1);
-      eggMaterial.needsUpdate = true;
+    } else {
+      eggMaterial.map = null;
     }
+    eggMaterial.needsUpdate = true;
   }, [pattern, state.entities]);
 
   const initScene = useCallback(
@@ -169,7 +187,7 @@ export const useThreeScene = () => {
       controls.autoRotate = true;
       controls.update();
 
-      const hemi = new THREE.HemisphereLight(0xffffff, 0x080820, 0.6);
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x080820, 0.3);
       scene.add(hemi);
 
       const ambient = new THREE.AmbientLight(0xffffff, 0.7);

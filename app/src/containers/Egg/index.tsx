@@ -1,16 +1,25 @@
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import Button from "../../components/buttons/Button";
 import { useOpenModal } from "../../contexts/ModalContext";
-import { useUploadPattern } from "../../contexts/PatternContext";
+import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
 import { ModalTypes } from "../../contexts/types";
+import { useCustomEgg } from "../../contexts/UserContext";
 import "../../styles/egg.css";
 
 export default function Egg() {
   const sceneContainer = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { initScene } = useThreeScene();
-  const { uploadPattern } = useUploadPattern();
+  const { uploadPattern, pattern, clearPattern } = useUpdatePattern();
+  const customEgg = useCustomEgg();
   const openModal = useOpenModal();
+
+  const reset = () => {
+    clearPattern();
+    inputRef.current!.value = "";
+  };
+
   useEffect(() => {
     if (!sceneContainer.current) {
       return;
@@ -19,18 +28,25 @@ export default function Egg() {
 
     return () => cleanup();
   }, [initScene]);
+
   return (
     <div className="egg__container">
       <div className="canvas__container" ref={sceneContainer} />
       <div>
         <label className="upload-label">
-          <input onChange={uploadPattern} type="file" />
+          <input ref={inputRef} onChange={uploadPattern} type="file" />
           Upload
         </label>
-        <Button
-          name="Customize Egg"
-          onClick={() => openModal(ModalTypes.EggMaker)}
-        />
+        {pattern && (
+          <Fragment>
+            <Button
+              name="Customize Egg"
+              size="lg"
+              onClick={() => openModal(ModalTypes.EggMaker)}
+            />
+            <Button name="Clear" onClick={reset} />
+          </Fragment>
+        )}
       </div>
     </div>
   );
