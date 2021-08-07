@@ -39,7 +39,7 @@ export default function EggMaker() {
           addEndListener={(node, done) =>
             node.addEventListener("transitionend", done, false)
           }
-          classNames="fade"
+          classNames="slide"
         >
           <div>
             <div className="modal__title">{props.cta}</div>
