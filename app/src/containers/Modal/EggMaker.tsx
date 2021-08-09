@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import Button from "../../components/buttons/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
@@ -20,6 +20,7 @@ export default function EggMaker() {
   const toggleModal = useModalToggle();
   const { updateEgg } = useUpdateEgg();
   const [state, setState] = useState(0);
+  const prevState = useRef(state);
 
   const props = eggMakerMap[state];
 
@@ -31,6 +32,11 @@ export default function EggMaker() {
     setState(state + 1);
   };
 
+  useEffect(() => {
+    prevState.current = state;
+  }, [state]);
+
+  const transitionClass = `slide${prevState.current > state ? "-back" : ""}`;
   return (
     <div>
       <SwitchTransition>
@@ -39,7 +45,7 @@ export default function EggMaker() {
           addEndListener={(node, done) =>
             node.addEventListener("transitionend", done, false)
           }
-          classNames="slide"
+          classNames={transitionClass}
         >
           <div>
             <div className="modal__title">{props.cta}</div>

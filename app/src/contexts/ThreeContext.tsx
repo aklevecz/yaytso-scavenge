@@ -243,5 +243,5 @@ export const useThreeScene = () => {
     //eslint-disable-next-line
   }, [state.renderer]);
 
-  return { initScene, RAF };
+  return { initScene, RAF, scene: state.scene };
 };
