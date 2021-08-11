@@ -7,6 +7,7 @@ import { useThreeScene } from "../../contexts/ThreeContext";
 import { ModalTypes } from "../../contexts/types";
 import { useCustomEgg } from "../../contexts/UserContext";
 import "../../styles/egg.css";
+import { pinBlobs } from "./services";
 import { createBlobs } from "./utils";
 
 export default function Egg() {
@@ -22,7 +23,7 @@ export default function Egg() {
     inputRef.current!.value = "";
   };
 
-  const exportYaytso = () => {
+  const exportYaytso = async () => {
     const exporter = new GLTFExporter();
     if (!scene) {
       return console.error("scene is missing");
@@ -31,7 +32,8 @@ export default function Egg() {
       scene,
       async (sceneGLTF) => {
         const data = createBlobs(sceneGLTF, "desc", "name");
-        console.log(data);
+        const r = await pinBlobs(data);
+        console.log(r);
       },
       { onlyVisible: true }
     );
