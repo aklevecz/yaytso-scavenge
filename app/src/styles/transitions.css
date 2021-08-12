@@ -1,3 +1,4 @@
+/* FADE */
 .fade-enter {
   opacity: 0;
 }
@@ -15,6 +16,7 @@
   transition: opacity 500ms;
 }
 
+/* SLIDE */
 .slide-enter {
   transform: translateX(100%);
 }
@@ -25,13 +27,14 @@
   transform: translateX(0%);
 }
 .slide-exit-active {
-  transform: translateX(100%);
+  transform: translateX(-100%);
 }
 .slide-enter-active,
 .slide-exit-active {
   transition: transform 500ms;
 }
 
+/* SLIDE_BACK */
 .slide-back-enter {
   transform: translateX(-100%);
 }
@@ -42,7 +45,7 @@
   transform: translateX(0%);
 }
 .slide-back-exit-active {
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 .slide-back-enter-active,
 .slide-back-exit-active {

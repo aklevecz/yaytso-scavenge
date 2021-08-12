@@ -51,22 +51,27 @@ export default function Egg() {
   return (
     <div className="egg__container">
       <div className="canvas__container" ref={sceneContainer} />
+      <div style={{ position: "absolute", left: 100, top: 100 }}>
+        <div>{customEgg.name}</div>
+        <div>{customEgg.description}</div>
+        <div>{customEgg.recipient}</div>
+      </div>
       <div>
         <label className="upload-label">
           <input ref={inputRef} onChange={uploadPattern} type="file" />
           Upload
         </label>
-        {pattern && (
-          <Fragment>
-            <Button
-              name="Customize Egg"
-              size="lg"
-              onClick={() => openModal(ModalTypes.EggMaker)}
-            />
-            <Button name="Clear" onClick={reset} />
-            <Button name="Export" onClick={exportYaytso} />
-          </Fragment>
-        )}
+        {/* {pattern && ( */}
+        <Fragment>
+          <Button
+            name="Customize Egg"
+            size="lg"
+            onClick={() => openModal(ModalTypes.EggMaker)}
+          />
+          <Button name="Clear" onClick={reset} />
+          <Button name="Export" onClick={exportYaytso} />
+        </Fragment>
+        {/* )} */}
       </div>
     </div>
   );
