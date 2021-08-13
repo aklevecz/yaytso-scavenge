@@ -77,8 +77,8 @@ export const useUpdatePattern = () => {
         return console.error("expecting a single file");
       }
       const canvas = await createCanvas(e.target.result);
+      document.body.appendChild(canvas);
       const pattern = createTexture(canvas, 7);
-      console.log(pattern, canvas);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
     };
     reader.readAsDataURL(file);

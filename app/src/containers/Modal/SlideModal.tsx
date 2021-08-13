@@ -17,6 +17,7 @@ const BiAnim = ({ children, state, changeView }: AnimProps) => {
   useEffect(() => {
     setTransitionClass(`slide${prevState > state ? "-back" : ""}`);
     setPrevState(state);
+    // eslint-disable-next-line
   }, [state]);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const BiAnim = ({ children, state, changeView }: AnimProps) => {
       return;
     }
     setNonce(nonce + 1);
+    // eslint-disable-next-line
   }, [prevState]);
 
   return (

@@ -4,11 +4,12 @@ type Props = {
   name: string;
   onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   size?: Sizes;
+  id?: string;
 };
 
-export default function Button({ name, onClick, size }: Props) {
+export default function Button({ name, onClick, size, id }: Props) {
   return (
-    <button className={`btn ${size}`} onClick={onClick}>
+    <button id={id} className={`btn ${size}`} onClick={onClick}>
       {name}
     </button>
   );

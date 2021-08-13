@@ -70,6 +70,7 @@ export default function Egg() {
           />
           <Button name="Clear" onClick={reset} />
           <Button name="Export" onClick={exportYaytso} />
+          <Button name="Login" onClick={() => openModal(ModalTypes.Login)} />
         </Fragment>
         {/* )} */}
       </div>
