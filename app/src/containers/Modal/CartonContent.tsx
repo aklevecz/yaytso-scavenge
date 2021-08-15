@@ -18,7 +18,7 @@ const defaultOptions = {
 export default function CartonContent() {
   const [img, setImg] = useState("");
   const viewRef = useRef<HTMLDivElement>(null);
-  const toggleModal = useModalToggle();
+  const { toggleModal } = useModalToggle();
   const { data } = useModalData();
   const { isLocked, yaytso, getYaytsoImage } = useCartonInfo(data);
 

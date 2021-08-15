@@ -7,8 +7,10 @@ const firebaseConfig = require("./firebase-config.json");
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 const CARTONS = "CARTONS";
+const YAYTSO = "YAYTSOS";
 
 export { CARTONS };
-export { db };
+export { auth, db };

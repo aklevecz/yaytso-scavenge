@@ -13,23 +13,35 @@ import EggMaker from "./EggMaker";
 import Login from "./Login";
 
 const modalMap = {
-  info: <Info />,
-  cartonContent: <CartonContent />,
-  eggMaker: <EggMaker />,
-  login: <Login />,
+  info: { component: <Info />, maxState: 0 },
+  cartonContent: { component: <CartonContent />, maxState: 0 },
+  eggMaker: { component: <EggMaker />, maxState: 2 },
+  login: { component: <Login />, maxState: 1 },
 };
 
 export default function Modal() {
   const open = useModalOpen();
   const [display, setDisplay] = useState(false);
-  const toggleModal = useModalToggle();
+  const { toggleModal, onModalBack, setMaxModalState } = useModalToggle();
   const modalType = useModalType();
+  const modal = modalType && modalMap[modalType];
 
   useEffect(() => {
     if (open) {
       setDisplay(true);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!modal) {
+      return;
+    }
+    setMaxModalState(modal.maxState);
+  }, [modalType, setMaxModalState, modal]);
+
+  if (!modal) {
+    return <div></div>;
+  }
 
   return createPortal(
     <div className={`modal__container ${display ? "open" : ""}`}>
@@ -40,12 +52,13 @@ export default function Modal() {
         onExited={() => setDisplay(false)}
       >
         <div className="modal__wrapper">
+          <button onClick={onModalBack} className="modal__back">
+            back
+          </button>
           <button onClick={toggleModal} className="modal__close">
             <CloseIcon />
           </button>
-          <div className="modal__content">
-            {modalType && modalMap[modalType]}
-          </div>
+          <div className="modal__content">{modal.component}</div>
         </div>
       </CSSTransition>
       <div onClick={toggleModal} className="modal__bg"></div>

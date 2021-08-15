@@ -1,11 +1,19 @@
-import { createContext, useContext, useReducer } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useReducer,
+  useState,
+} from "react";
 import { ModalTypes } from "./types";
 
 type Action =
   | { type: "OPEN_MODAL"; modalType: ModalTypes; data?: any }
   | { type: "CLOSE_MODAL" }
   | { type: "TOGGLE_MODAL" }
-  | { type: "CLEAR_DATA" };
+  | { type: "CLEAR_DATA" }
+  | { type: "SET_MODAL_STATE"; modalState: number }
+  | { type: "SET_MAX_STATE"; maxState: number };
 
 type Dispatch = (action: Action) => void;
 
@@ -13,12 +21,16 @@ export type State = {
   open: boolean;
   modalType: ModalTypes | undefined;
   data: any;
+  modalState: number;
+  maxState: number;
 };
 
 const initialState = {
   open: false,
   modalType: undefined,
   data: undefined,
+  modalState: 0,
+  maxState: 0,
 };
 
 const ModalContext = createContext<
@@ -40,6 +52,10 @@ const reducer = (state: State, action: Action) => {
       return { ...state, open: !state.open };
     case "CLEAR_DATA":
       return { ...state, data: undefined };
+    case "SET_MODAL_STATE":
+      return { ...state, modalState: action.modalState };
+    case "SET_MAX_STATE":
+      return { ...state, maxState: action.maxState };
     default:
       return state;
   }
@@ -79,11 +95,37 @@ export const useModalToggle = () => {
     throw new Error("must be within its provider: User");
   }
 
-  const { dispatch } = context;
+  const { dispatch, state } = context;
 
   const toggleModal = () => dispatch({ type: "TOGGLE_MODAL" });
 
-  return toggleModal;
+  const { maxState, modalState } = state;
+
+  const onModalBack = () => {
+    const newState = modalState - 1;
+    if (newState < 0) return;
+    dispatch({ type: "SET_MODAL_STATE", modalState: newState });
+  };
+
+  const onModalNext = () => {
+    const newState = modalState + 1;
+    if (newState > state.maxState) return;
+    dispatch({ type: "SET_MODAL_STATE", modalState: newState });
+  };
+
+  const setMaxModalState = useCallback(
+    (maxState: number) => dispatch({ type: "SET_MAX_STATE", maxState }),
+    [dispatch]
+  );
+
+  return {
+    toggleModal,
+    onModalBack,
+    onModalNext,
+    maxState,
+    modalState,
+    setMaxModalState,
+  };
 };
 
 export const useOpenModal = () => {

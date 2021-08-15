@@ -31,6 +31,15 @@
   display: none;
 }
 
+.modal__back {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 16px;
+  background: none;
+  font-size: 22px;
+}
+
 .modal__close {
   position: absolute;
   right: 0px;

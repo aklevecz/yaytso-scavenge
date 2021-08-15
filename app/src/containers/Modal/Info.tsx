@@ -2,7 +2,7 @@ import Button from "../../components/buttons/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
 
 export default function Info() {
-  const toggleModal = useModalToggle();
+  const { toggleModal } = useModalToggle();
   return (
     <div>
       <div className="modal__title">Info</div>

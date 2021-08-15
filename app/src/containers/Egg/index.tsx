@@ -5,7 +5,7 @@ import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
 import { ModalTypes } from "../../contexts/types";
-import { useCustomEgg } from "../../contexts/UserContext";
+import { useCustomEgg, useLogin } from "../../contexts/UserContext";
 import "../../styles/egg.css";
 import { pinBlobs } from "./services";
 import { createBlobs } from "./utils";
@@ -17,6 +17,8 @@ export default function Egg() {
   const { uploadPattern, pattern, clearPattern } = useUpdatePattern();
   const customEgg = useCustomEgg();
   const openModal = useOpenModal();
+
+  const { logout } = useLogin();
 
   const reset = () => {
     clearPattern();
@@ -71,6 +73,7 @@ export default function Egg() {
           <Button name="Clear" onClick={reset} />
           <Button name="Export" onClick={exportYaytso} />
           <Button name="Login" onClick={() => openModal(ModalTypes.Login)} />
+          <Button name="Logout" onClick={logout} />
         </Fragment>
         {/* )} */}
       </div>
