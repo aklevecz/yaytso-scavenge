@@ -9,16 +9,22 @@
   },
   "hosting": {
     "public": "app/build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
     ]
+  },
+  "emulators": {
+    "functions": {
+      "host": "localhost",
+      "port": "5002"
+    },
+    "firestore": {
+      "host": "localhost",
+      "port": "8081"
+    }
   }
 }

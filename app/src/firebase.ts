@@ -9,8 +9,16 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-const CARTONS = "CARTONS";
-const YAYTSO = "YAYTSOS";
+if (process.env.NODE_ENV === "development") {
+  db.settings({
+    host: "localhost:8081",
+    ssl: false,
+  });
+  firebase.functions().useEmulator("http://localhost", 5002);
+}
 
-export { CARTONS };
+const CARTONS = "CARTONS";
+const YAYTSOS = "YAYTSOS";
+
+export { CARTONS, YAYTSOS };
 export { auth, db };

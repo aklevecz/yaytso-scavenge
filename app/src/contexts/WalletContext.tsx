@@ -1,16 +1,23 @@
 import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useReducer } from "react";
+import { db, YAYTSOS } from "../firebase";
+import { YaytsoMeta } from "./types";
+import { useUser } from "./UserContext";
 
-type Action = { type: "createWallet"; wallet: ethers.Wallet };
+type Action =
+  | { type: "createWallet"; wallet: ethers.Wallet }
+  | { type: "SET_COLLECTION"; yaytsos: YaytsoMeta[] };
 
 type Dispatch = (action: Action) => void;
 
 type State = {
   wallet: ethers.Wallet | undefined;
+  yaytsoCollection: YaytsoMeta[];
 };
 
 const initialState = {
   wallet: undefined,
+  yaytsoCollection: [],
 };
 
 const WalletContext = createContext<
@@ -21,6 +28,8 @@ const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "createWallet":
       return { ...state, wallet: action.wallet };
+    case "SET_COLLECTION":
+      return { ...state, yaytsoCollection: action.yaytsos };
     default:
       return state;
   }
@@ -32,6 +41,7 @@ const WalletProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const user = useUser();
 
   useEffect(() => {
     const wallet = localStorage.getItem("wallet");
@@ -40,6 +50,18 @@ const WalletProvider = ({
       dispatch({ type: "createWallet", wallet: web3Wallet });
     }
   }, []);
+
+  useEffect(() => {
+    console.log(user);
+    if (user) {
+      db.collection(YAYTSOS)
+        .where("uid", "==", user.uid)
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((d) => console.log(d.data()));
+        });
+    }
+  }, [user]);
 
   const value = { state, dispatch };
   return (

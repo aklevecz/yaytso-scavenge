@@ -61,7 +61,7 @@ const dev = process.env.NODE_ENV === "dev";
 
     const sliceAmt = dev ? 2 : 4;
     const byteArray = new CID(svgCID).bytes.slice(sliceAmt);
-    return res.send({ metaCID, svgCID, byteArray });
+    return res.send({ metaCID, svgCID, gltfCID, byteArray, success: true });
   });
 
   const port = process.env.PORT || 8082;

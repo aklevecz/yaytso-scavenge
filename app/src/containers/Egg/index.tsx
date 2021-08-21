@@ -5,10 +5,10 @@ import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
 import { ModalTypes } from "../../contexts/types";
-import { useCustomEgg, useLogin } from "../../contexts/UserContext";
+import { useCustomEgg, useLogin, useUser } from "../../contexts/UserContext";
 import "../../styles/egg.css";
 import { pinBlobs } from "./services";
-import { createBlobs } from "./utils";
+import { createBlobs, saveYaytso } from "./utils";
 
 export default function Egg() {
   const sceneContainer = useRef<HTMLDivElement | null>(null);
@@ -17,6 +17,8 @@ export default function Egg() {
   const { uploadPattern, pattern, clearPattern } = useUpdatePattern();
   const customEgg = useCustomEgg();
   const openModal = useOpenModal();
+
+  const user = useUser();
 
   const { logout } = useLogin();
 
@@ -35,7 +37,19 @@ export default function Egg() {
       async (sceneGLTF) => {
         const data = createBlobs(sceneGLTF, "desc", "name");
         const r = await pinBlobs(data);
-        console.log(r);
+        if (r.success) {
+          const response = await saveYaytso(
+            user.uid,
+            r.metaCID,
+            r.svgCID,
+            r.gltfCID
+          );
+          if (response) {
+            console.log("sucess");
+          } else {
+            console.error("save failed");
+          }
+        }
       },
       { onlyVisible: true }
     );

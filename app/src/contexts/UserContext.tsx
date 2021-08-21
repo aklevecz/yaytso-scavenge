@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useReducer } from "react";
 import firebase from "firebase";
-import { auth } from "../firebase";
+import { auth, db, YAYTSOS } from "../firebase";
 
 type EggParams = {
   name?: string;
