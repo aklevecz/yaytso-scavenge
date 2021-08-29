@@ -1,4 +1,3 @@
-import Nav from "../Nav";
 import Right from "./Right";
 
 export default function Overlay() {

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef } from "react";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
-import Button from "../../components/buttons/Button";
+import Button from "../../components/Button";
 import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
@@ -56,6 +56,7 @@ export default function Egg() {
   };
 
   useEffect(() => {
+    console.log(sceneContainer.current);
     if (!sceneContainer.current) {
       return;
     }

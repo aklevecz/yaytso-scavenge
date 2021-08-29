@@ -52,7 +52,6 @@ const WalletProvider = ({
   }, []);
 
   useEffect(() => {
-    console.log(user);
     if (user) {
       db.collection(YAYTSOS)
         .where("uid", "==", user.uid)

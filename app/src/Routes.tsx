@@ -10,14 +10,18 @@ export default function Routes() {
   return (
     <Router>
       <Switch>
-        <WalletProvider>
-          <Route path="/wallet" component={Wallet} />
-        </WalletProvider>
-        <PatternProvider>
-          <ThreeProvider>
-            <Route path="/egg" component={Egg} />
-          </ThreeProvider>
-        </PatternProvider>
+        <Route path="/wallet">
+          <WalletProvider>
+            <Wallet />
+          </WalletProvider>
+        </Route>
+        <Route path="/egg">
+          <PatternProvider>
+            <ThreeProvider>
+              <Egg />
+            </ThreeProvider>
+          </PatternProvider>
+        </Route>
         <Route path="/" component={Map} />
       </Switch>
     </Router>
