@@ -5,10 +5,12 @@ import Egg from "./containers/Egg";
 import { ThreeProvider } from "./contexts/ThreeContext";
 import { PatternProvider } from "./contexts/PatternContext";
 import { WalletProvider } from "./contexts/WalletContext";
+import Nav from "./components/Nav";
 
 export default function Routes() {
   return (
     <Router>
+      <Nav />
       <Switch>
         <Route path="/wallet">
           <WalletProvider>

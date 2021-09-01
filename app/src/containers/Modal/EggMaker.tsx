@@ -16,5 +16,7 @@ const eggMakerMap: { [key: number]: ModalProps } = {
 export default function EggMaker() {
   const { updateEgg } = useUpdateEgg();
 
+  const done = () => {};
+
   return <SlideModal propMap={eggMakerMap} updateCallback={updateEgg} />;
 }

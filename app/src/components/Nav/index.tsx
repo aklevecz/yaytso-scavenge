@@ -1,3 +1,11 @@
+import { Link } from "react-router-dom";
+
 export default function Nav() {
-  return <div></div>;
+  return (
+    <div className="nav">
+      <Link to="/">Map</Link>
+      <Link to="/egg">Egg</Link>
+      <Link to="/wallet">Wallet</Link>
+    </div>
+  );
 }

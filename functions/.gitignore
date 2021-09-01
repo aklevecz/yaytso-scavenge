@@ -9,3 +9,7 @@ typings/
 node_modules/
 
 src/admin.json
+
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

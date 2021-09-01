@@ -56,7 +56,6 @@ export default function Egg() {
   };
 
   useEffect(() => {
-    console.log(sceneContainer.current);
     if (!sceneContainer.current) {
       return;
     }

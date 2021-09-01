@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "export NODE_ENV=dev&&node index.js"
+    "start-mac": "export NODE_ENV=dev&&node index.js",
+    "start-win": "set NODE_ENV=dev&&node index.js"
   },
   "keywords": [],
   "author": "",
