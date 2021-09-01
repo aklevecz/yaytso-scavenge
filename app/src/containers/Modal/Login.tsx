@@ -1,4 +1,4 @@
-import Button from "../../components/buttons/Button";
+import Button from "../../components/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";

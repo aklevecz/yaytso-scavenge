@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Lottie from "react-lottie";
 import loadingAnimation from "../../assets/loading-anim.json";
-import Button from "../../components/buttons/Button";
+import Button from "../../components/Button";
 import { useCartonInfo } from "../../contexts/CartonContext";
 import { useModalData, useModalToggle } from "../../contexts/ModalContext";
 import { fadeIn } from "../../contexts/utils";

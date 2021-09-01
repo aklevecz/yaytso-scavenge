@@ -15,6 +15,7 @@ const IPFS = require("ipfs-core");
 const apiKey = process.env.NFT_STORAGE_TOKEN;
 const metadataFile = fs.readFileSync("metadataTemplate.json");
 const dev = process.env.NODE_ENV === "dev";
+console.log(dev);
 (async () => {
   const client = dev ? await IPFS.create() : new NFTStorage({ token: apiKey });
 

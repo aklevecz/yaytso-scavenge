@@ -1,23 +1,25 @@
 import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useReducer } from "react";
 import { db, YAYTSOS } from "../firebase";
-import { YaytsoMeta } from "./types";
+import { YaytsoCID, YaytsoMeta } from "./types";
 import { useUser } from "./UserContext";
 
 type Action =
   | { type: "createWallet"; wallet: ethers.Wallet }
-  | { type: "SET_COLLECTION"; yaytsos: YaytsoMeta[] };
+  | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] };
 
 type Dispatch = (action: Action) => void;
 
 type State = {
   wallet: ethers.Wallet | undefined;
   yaytsoCollection: YaytsoMeta[];
+  yaytsoCIDS: YaytsoCID[];
 };
 
 const initialState = {
   wallet: undefined,
   yaytsoCollection: [],
+  yaytsoCIDS: [],
 };
 
 const WalletContext = createContext<
@@ -28,8 +30,8 @@ const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "createWallet":
       return { ...state, wallet: action.wallet };
-    case "SET_COLLECTION":
-      return { ...state, yaytsoCollection: action.yaytsos };
+    case "SET_CIDS":
+      return { ...state, yaytsoCIDS: action.yaytsoCIDS };
     default:
       return state;
   }
@@ -57,7 +59,12 @@ const WalletProvider = ({
         .where("uid", "==", user.uid)
         .get()
         .then((snapshot) => {
-          snapshot.forEach((d) => console.log(d.data()));
+          let yaytsoCIDS: YaytsoCID[] = [];
+          snapshot.forEach((data) => {
+            const { metaCID, svgCID, gltfCID } = data.data();
+            yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
+          });
+          dispatch({ type: "SET_CIDS", yaytsoCIDS });
         });
     }
   }, [user]);

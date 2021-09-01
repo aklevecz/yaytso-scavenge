@@ -1,4 +1,4 @@
-import Button from "../../components/buttons/Button";
+import Button from "../../components/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
 
 export default function Info() {

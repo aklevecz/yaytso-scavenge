@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "set NODE_ENV=dev&&node index.js"
+    "start": "export NODE_ENV=dev&&node index.js"
   },
   "keywords": [],
   "author": "",

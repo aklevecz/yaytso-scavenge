@@ -30,3 +30,9 @@ export type YaytsoMeta = {
   description: string;
   image: string;
 };
+
+export type YaytsoCID = {
+  metaCID: string;
+  svgCID: string;
+  gltfCID: string;
+};

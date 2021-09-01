@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Button from "../../components/buttons/Button";
+import Button from "../../components/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
 import { BiAnim } from "./Transitions";
 
@@ -31,7 +31,6 @@ export default function SlideModal({ propMap, updateCallback }: any) {
   // const back = () => {
   //   // setState(state - 1);
   // };
-  console.log(state);
   return (
     <div>
       <BiAnim state={state} changeView={() => setView(state)}>
