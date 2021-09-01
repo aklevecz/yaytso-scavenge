@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useReducer } from "react";
+import { IPFS_URL } from "../constants";
 import { db, YAYTSOS } from "../firebase";
 import { YaytsoCID, YaytsoMeta } from "./types";
 import { useUser } from "./UserContext";
@@ -65,6 +66,10 @@ const WalletProvider = ({
             yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
           });
           dispatch({ type: "SET_CIDS", yaytsoCIDS });
+
+          const svgPromises = yaytsoCIDS.map((yaytsoCID) => {
+            fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then(console.log);
+          });
         });
     }
   }, [user]);
