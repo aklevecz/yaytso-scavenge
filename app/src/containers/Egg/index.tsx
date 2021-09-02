@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef } from "react";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import Button from "../../components/Button";
+import EggMask from "../../components/Mask/Egg";
 import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
@@ -9,6 +10,9 @@ import { useCustomEgg, useLogin, useUser } from "../../contexts/UserContext";
 import "../../styles/egg.css";
 import { pinBlobs } from "./services";
 import { createBlobs, saveYaytso } from "./utils";
+
+const EGG_MASK = "egg-mask";
+const EGGVG = "eggvg";
 
 export default function Egg() {
   const sceneContainer = useRef<HTMLDivElement | null>(null);
@@ -35,7 +39,9 @@ export default function Egg() {
     exporter.parse(
       scene,
       async (sceneGLTF) => {
-        const data = createBlobs(sceneGLTF, "desc", "name");
+        const eggMask = document.getElementById(EGG_MASK);
+        const eggVG = document.getElementById(EGGVG);
+        const data = createBlobs(sceneGLTF, eggVG, "desc", "name");
         const r = await pinBlobs(data);
         if (r.success) {
           const response = await saveYaytso(
@@ -91,6 +97,7 @@ export default function Egg() {
         </Fragment>
         {/* )} */}
       </div>
+      <EggMask visible={false} svgId={EGGVG} imgId={EGG_MASK} />
     </div>
   );
 }

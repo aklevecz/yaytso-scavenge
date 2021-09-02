@@ -2,13 +2,23 @@ import { db, YAYTSOS } from "../../firebase";
 
 export const createBlobs = (
   gltf: object,
+  svg: any,
   desc: string,
   name: string
 ): FormData => {
+  const data = new FormData();
+
   const gltfString = JSON.stringify(gltf);
   const gltfBlob = new Blob([gltfString], { type: "text/json" });
-  const data = new FormData();
   data.append("gltf", gltfBlob);
+
+  const svgClone: any = svg.cloneNode(true);
+  svgClone.style.display = "";
+  const outerSVGHTML = svgClone.outerHTML;
+  const svgBlob = new Blob([outerSVGHTML], {
+    type: "img/svg+xml;charset=utf-8",
+  });
+  data.append("svg", svgBlob);
 
   const metadata = { name, desc };
   data.append("metadata", JSON.stringify(metadata));

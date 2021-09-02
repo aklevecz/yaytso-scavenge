@@ -64,6 +64,50 @@ export const createCanvas = (
   });
 };
 
+export const createCanvasCropped = (
+  imgDataURL: string,
+  width: number,
+  height: number
+): Promise<HTMLCanvasElement> => {
+  return new Promise((resolve, __) => {
+    const img = new Image();
+    img.src = imgDataURL;
+    img.onload = (e) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        return null;
+      }
+
+      ctx.canvas.width = width;
+      ctx.canvas.height = height;
+      const imgSize = Math.min(img.width, img.height);
+      const left = (img.width - imgSize) / 2;
+      const top = (img.height - imgSize) / 2;
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, left, top, imgSize, imgSize, 0, 0, width, height);
+      resolve(canvas);
+    };
+  });
+};
+
+export const createEggMask = (
+  eggMask: HTMLImageElement,
+  copyCanvas: HTMLCanvasElement,
+  width: number,
+  height: number
+) => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
+  ctx.drawImage(copyCanvas, 0, 0, width, height, 0, 0, 40, 40);
+
+  eggMask.setAttribute("xlink:href", copyCanvas.toDataURL());
+};
+
 export const createTexture = (
   canvas: HTMLCanvasElement,
   repetitions: number

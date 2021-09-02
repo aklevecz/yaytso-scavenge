@@ -1,6 +1,11 @@
 import { createContext, useContext, useReducer } from "react";
 import { CanvasTexture } from "three";
-import { createCanvas, createTexture } from "./utils";
+import {
+  createCanvas,
+  createCanvasCropped,
+  createEggMask,
+  createTexture,
+} from "./utils";
 
 type Action =
   | {
@@ -77,7 +82,12 @@ export const useUpdatePattern = () => {
         return console.error("expecting a single file");
       }
       const canvas = await createCanvas(e.target.result);
+      const canvasSmall = await createCanvasCropped(e.target.result, 200, 200);
+
+      const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
+      createEggMask(eggMask, canvas, 200, 200);
       document.body.appendChild(canvas);
+      document.body.appendChild(canvasSmall);
       const pattern = createTexture(canvas, 7);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
     };

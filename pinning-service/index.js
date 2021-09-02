@@ -39,11 +39,10 @@ const dev = process.env.NODE_ENV === "dev";
     const name = req.body.name;
     const desc = req.body.desc;
     const gltf = req.files[0];
-    // const svg = req.files[1];
+    const svg = req.files[1];
     const gltfCID = await store(gltf.buffer);
-    // const svgCID = await store(svg.buffer);
+    const svgCID = await store(svg.buffer);
 
-    const svgCID = gltfCID;
     const metadata = JSON.parse(metadataFile);
     metadata.image = metadata.image.replace("__HASH__", svgCID);
     metadata.animation_url = metadata.animation_url.replace(
