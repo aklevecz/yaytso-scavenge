@@ -1,5 +1,11 @@
 import { ethers } from "ethers";
-import { createContext, useContext, useEffect, useReducer } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { IPFS_URL } from "../constants";
 import { db, YAYTSOS } from "../firebase";
 import { YaytsoCID, YaytsoMeta } from "./types";
@@ -153,7 +159,6 @@ export const useCreateWallet = () => {
 
 export const useYaytsoSVGs = () => {
   const context = useContext(WalletContext);
-
   if (context === undefined) {
     throw new Error("Wallet Context error in YaytsoSVGs hook");
   }
@@ -170,6 +175,5 @@ export const useYaytsoSVGs = () => {
       dispatch({ type: "SET_SVGs", yaytsoSVGs: svgs });
     });
   }, [yaytsoCIDS]);
-
   return { svgs: state.yaytsoSVGs };
 };
