@@ -26,6 +26,7 @@ type Action =
       address: string;
       chainId: number;
     }
+  | { type: "DISCONNECT" }
   | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
   | { type: "SET_SVGs"; yaytsoSVGs: string[] };
@@ -60,7 +61,23 @@ const initialState = {
 };
 
 const WalletContext = createContext<
-  { state: State; dispatch: Dispatch } | undefined
+  | {
+      state: State;
+      dispatch: Dispatch;
+      initWallet({
+        provider,
+        signer,
+        address,
+        chainId,
+      }: {
+        provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+        signer: ethers.Signer;
+        address: string;
+        chainId: number;
+      }): void;
+      disconnect(): void;
+    }
+  | undefined
 >(undefined);
 
 const reducer = (state: State, action: Action) => {
@@ -80,6 +97,8 @@ const reducer = (state: State, action: Action) => {
       return { ...state, yaytsoCIDS: action.yaytsoCIDS };
     case "SET_SVGs":
       return { ...state, yaytsoSVGs: action.yaytsoSVGs };
+    case "DISCONNECT":
+      return initialState;
     default:
       return state;
   }
@@ -93,12 +112,19 @@ const WalletProvider = ({
   const [state, dispatch] = useReducer(reducer, initialState);
   const user = useUser();
 
-  const initWallet = (
-    signer: ethers.Signer,
-    address: string,
-    chainId: number,
-    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider
-  ) => dispatch({ type: "INIT_WALLET", signer, address, chainId, provider });
+  const initWallet = ({
+    signer,
+    address,
+    chainId,
+    provider,
+  }: {
+    signer: ethers.Signer;
+    address: string;
+    chainId: number;
+    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+  }) => dispatch({ type: "INIT_WALLET", signer, address, chainId, provider });
+
+  const disconnect = () => dispatch({ type: "DISCONNECT" });
 
   useEffect(() => {
     const wallet = localStorage.getItem("wallet");
@@ -124,27 +150,25 @@ const WalletProvider = ({
     }
   }, [user]);
 
-  const web3WindowConnect = async (web3: Web3WindowApi) => {
-    const { signer, address, chainId, provider } = await web3.requestAccount();
-    console.log(signer, address, chainId, provider);
-    initWallet(signer, address, chainId, provider);
-  };
-
-  useEffect(() => {
-    if (window.ethereum) {
-      const web3 = new Web3WindowApi();
-      if (web3.isAvailable) {
-        web3WindowConnect(web3);
-      }
-    }
-  }, []);
-  const value = { state, dispatch };
+  const value = { state, dispatch, initWallet, disconnect };
+  console.log(state);
   return (
     <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
   );
 };
 
 export { WalletContext, WalletProvider };
+
+export const useWallet = () => {
+  const context = useContext(WalletContext);
+
+  if (context === undefined) {
+    throw new Error("Wallet Context error in Wallet hook");
+  }
+
+  const { dispatch, state } = context;
+  return state;
+};
 
 export const useCreateWallet = () => {
   const context = useContext(WalletContext);
@@ -176,4 +200,37 @@ export const useYaytsoSVGs = () => {
     });
   }, [yaytsoCIDS]);
   return { svgs: state.yaytsoSVGs };
+};
+
+export const useMetaMask = () => {
+  const context = useContext(WalletContext);
+
+  if (context === undefined) {
+    throw new Error("Wallet Context error in MetaMask hook");
+  }
+  const { dispatch, state, initWallet, disconnect } = context;
+
+  const web3WindowConnect = async () => {
+    const web3 = new Web3WindowApi();
+    const { address, chainId } = await web3.requestAccount().catch(console.log);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    initWallet({ signer, address, chainId, provider });
+    return web3;
+  };
+
+  const metamaskConnect = () => {
+    if (window.ethereum) {
+      web3WindowConnect()
+        .then((web3) => {
+          if (web3.isAvailable) {
+            web3.onNetworkChange(initWallet);
+            web3.onAccountChange(initWallet, disconnect);
+          }
+        })
+        .catch(console.log);
+    }
+  };
+
+  return { metamaskConnect, isConnected: state.connected };
 };

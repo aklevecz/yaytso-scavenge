@@ -36,8 +36,7 @@ const dev = process.env.NODE_ENV === "dev";
   });
 
   app.post("/", upload.any(), async (req, res) => {
-    const name = req.body.name;
-    const desc = req.body.desc;
+    const { name, desc } = JSON.parse(req.body.metadata);
     const gltf = req.files[0];
     const svg = req.files[1];
     const gltfCID = await store(gltf.buffer);
@@ -58,6 +57,7 @@ const dev = process.env.NODE_ENV === "dev";
     const metaCID = meta_id;
 
     console.log(metaCID);
+    console.log(metadata);
 
     const sliceAmt = dev ? 2 : 4;
     const byteArray = new CID(svgCID).bytes.slice(sliceAmt);

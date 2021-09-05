@@ -22,7 +22,9 @@ const pp = process.env.RINKEBY_PP;
 
 module.exports = {
   solidity: "0.6.2",
+  defaultNetwork: "hardhat",
   networks: {
+    hardhat: {},
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
       accounts: [pp],

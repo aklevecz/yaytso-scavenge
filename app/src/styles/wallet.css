@@ -15,3 +15,11 @@
   width: 225px;
   font-size: 18px;
 }
+
+.wallet__egg-container {
+  display: flex;
+}
+
+.wallet__egg-container div {
+  flex: 1 0 auto;
+}

@@ -109,6 +109,7 @@ export const useModalToggle = () => {
 
   const onModalNext = () => {
     const newState = modalState + 1;
+    console.log(state.maxState);
     if (newState > state.maxState) return;
     dispatch({ type: "SET_MODAL_STATE", modalState: newState });
   };

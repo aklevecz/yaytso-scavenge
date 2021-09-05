@@ -36,16 +36,24 @@ export default function Egg() {
     if (!scene) {
       return console.error("scene is missing");
     }
+    if (customEgg.description === undefined) {
+      return console.error("please describe your egg");
+    }
+    if (customEgg.name === undefined) {
+      return console.error("please name your egg");
+    }
+    const { description, name } = customEgg;
     exporter.parse(
       scene,
       async (sceneGLTF) => {
-        const eggMask = document.getElementById(EGG_MASK);
         const eggVG = document.getElementById(EGGVG);
-        const data = createBlobs(sceneGLTF, eggVG, "desc", "name");
+        const data = createBlobs(sceneGLTF, eggVG, description, name);
         const r = await pinBlobs(data);
         if (r.success) {
           const response = await saveYaytso(
             user.uid,
+            name,
+            description,
             r.metaCID,
             r.svgCID,
             r.gltfCID

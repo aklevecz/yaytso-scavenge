@@ -108,26 +108,26 @@ const ThreeProvider = ({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const loadGLTF = useCallback(
-    (path: string) => {
+    (path: string, scene: THREE.Scene) => {
       const loader = new GLTFLoader();
       loader.load(path, (object: GLTF) => {
-        if (state.scene === undefined) {
-          return console.log("no scene");
-        }
         object.scene.scale.set(0.1, 0.1, 0.1);
         // This could be removed and they could just be loaded first
-        state.scene.add(object.scene);
+        scene.add(object.scene);
         dispatch({
           type: "ADD_ENITITIES",
           entities: [{ object, name: "egg" }],
         });
       });
     },
-    [dispatch, state.scene]
+    [dispatch]
   );
 
   useEffect(() => {
-    loadGLTF(yaytso);
+    if (!state.scene) {
+      return;
+    }
+    loadGLTF(yaytso, state.scene);
   }, [state.scene, loadGLTF]);
 
   const value = { state, dispatch };
@@ -150,6 +150,9 @@ export const useThreeScene = () => {
   const { dispatch, state } = context;
 
   useEffect(() => {
+    if (!pattern) {
+      return;
+    }
     const object = state.entities.find(
       (entity: Entity) => entity.name === "egg"
     );

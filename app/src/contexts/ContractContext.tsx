@@ -5,19 +5,26 @@ import {
   useEffect,
   useReducer,
 } from "react";
+import { WalletContext } from "./WalletContext";
 import { ethers } from "ethers";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
+
+const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const YAYTSO_MAIN_ADDRESS = "0x155b65c62e2bf8214d1e3f60854df761b9aa92b3";
 const CARTON_MAIN_ADDRESS = "0x7c05cf1a1608eE23652014FB12Cb614F3325CFB5";
 
 const CARTON_RINKEBY_ADDRESS = "0x8b401BEe910bd2B810715Ca459434A884C266324";
 
-const NETWORK = "homestead";
+const NETWORK =
+  process.env.NODE_ENV === "development" ? "hardhat" : "homestead";
+
+const YAYTSO_ADDRESS =
+  NETWORK === "hardhat" ? YAYTSO_HARDHAT_ADDRESS : YAYTSO_MAIN_ADDRESS;
 
 const contractMap: { [key: string]: { interface: any; address: string } } = {
-  yaytso: { interface: YaytsoInterface, address: YAYTSO_MAIN_ADDRESS },
+  yaytso: { interface: YaytsoInterface, address: YAYTSO_ADDRESS },
   carton: { interface: CartonInterface, address: CARTON_RINKEBY_ADDRESS },
 };
 
@@ -35,14 +42,19 @@ type State = {
   provider: ethers.providers.BaseProvider;
 };
 
+const provider =
+  process.env.NODE_ENV === "development"
+    ? new ethers.providers.JsonRpcProvider()
+    : ethers.providers.getDefaultProvider(NETWORK, {
+        infura: process.env.REACT_APP_INFURA_KEY,
+        alchemy: process.env.REACT_APP_ALCHEMY_KEY,
+        etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
+      });
+
 const initialState = {
   yaytsoContract: undefined,
   cartonContract: undefined,
-  provider: ethers.providers.getDefaultProvider(NETWORK, {
-    infura: process.env.REACT_APP_INFURA_KEY,
-    alchemy: process.env.REACT_APP_ALCHEMY_KEY,
-    etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
-  }),
+  provider,
 };
 
 const ContractContext = createContext<
@@ -130,5 +142,14 @@ export const useYaytsoContract = () => {
     return meta;
   };
 
-  return { contract: state.yaytsoContract, getYaytsoURI };
+  const layYaytso = async (
+    wallet: any,
+    recipient: string,
+    pattern: string,
+    uri: string
+  ) => {
+    console.log(wallet);
+  };
+
+  return { contract: state.yaytsoContract, getYaytsoURI, layYaytso };
 };

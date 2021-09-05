@@ -1,10 +1,8 @@
-import { ethers, providers } from "ethers";
-import { callbackify } from "util";
+import { ethers } from "ethers";
 
 export class Web3WindowApi {
   ethereum: any;
-  provider: ethers.providers.Web3Provider | undefined;
-  signer: ethers.Signer | undefined;
+  address: string | undefined;
   isAvailable: boolean = false;
   chainId: number | undefined;
 
@@ -19,40 +17,39 @@ export class Web3WindowApi {
   async _init() {
     this.ethereum = window.ethereum;
     this.isAvailable = true;
-    const { provider, signer } = this._getSignerProvider();
-    this.provider = provider;
-    this.signer = signer;
-    const { chainId } = await this.provider.getNetwork();
-    console.log(chainId);
-    this.chainId = chainId;
-  }
-
-  _getSignerProvider() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    return { provider, signer };
   }
 
   requestAccount() {
     return this.ethereum
       .request({ method: "eth_requestAccounts" })
       .then(async (accounts: string[]) => {
-        console.log(this.chainId);
+        this.address = accounts[0];
         return {
-          address: accounts[0],
-          signer: this.signer,
-          provider: this.provider,
+          address: this.address,
           chainId: this.chainId,
         };
       });
   }
 
-  onNetworkChange(_callback: any) {
-    console.log(_callback);
-    this.ethereum.on("networkChange", (chainId: number) => {
-      console.log("network change");
-      const { provider, signer } = this._getSignerProvider();
-      _callback({ type: "INIT_WALLET", provider, signer, chainId });
+  onNetworkChange(action: any) {
+    this.ethereum.on("chainChanged", (chainId: number) => {
+      action();
+    });
+  }
+
+  onAccountChange(action: any, fail: any) {
+    this.ethereum.on("accountsChanged", (accounts: any) => {
+      if (accounts.length !== 0) {
+        action();
+      } else {
+        fail();
+      }
+    });
+  }
+
+  onDisconnect(action: any) {
+    this.ethereum.on("disconnect", () => {
+      console.log("there is an issue connecting to the network");
     });
   }
 }

@@ -28,6 +28,8 @@ export const createBlobs = (
 
 export const saveYaytso = async (
   uid: string,
+  name: string,
+  description: string,
   metaCID: string,
   svgCID: string,
   gltfCID: string
@@ -35,7 +37,7 @@ export const saveYaytso = async (
   return db
     .collection(YAYTSOS)
     .doc(metaCID)
-    .set({ uid, metaCID, svgCID, gltfCID })
+    .set({ uid, name, description, metaCID, svgCID, gltfCID })
     .then(() => true)
     .catch(() => false);
 };
