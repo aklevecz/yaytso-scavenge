@@ -5,23 +5,24 @@ import {
   useEffect,
   useReducer,
 } from "react";
-import { WalletContext } from "./WalletContext";
 import { ethers } from "ethers";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
+import { WalletState } from "./types";
 
 const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const YAYTSO_MAIN_ADDRESS = "0x155b65c62e2bf8214d1e3f60854df761b9aa92b3";
 const CARTON_MAIN_ADDRESS = "0x7c05cf1a1608eE23652014FB12Cb614F3325CFB5";
 
+const YAYTSO_RINKEBY_ADDRESS = "0xC9D478fbb72c7F4Cb16eAb4b8bEF2F09776A45C2";
 const CARTON_RINKEBY_ADDRESS = "0x8b401BEe910bd2B810715Ca459434A884C266324";
 
 const NETWORK =
   process.env.NODE_ENV === "development" ? "hardhat" : "homestead";
 
 const YAYTSO_ADDRESS =
-  NETWORK === "hardhat" ? YAYTSO_HARDHAT_ADDRESS : YAYTSO_MAIN_ADDRESS;
+  NETWORK === "hardhat" ? YAYTSO_RINKEBY_ADDRESS : YAYTSO_MAIN_ADDRESS;
 
 const contractMap: { [key: string]: { interface: any; address: string } } = {
   yaytso: { interface: YaytsoInterface, address: YAYTSO_ADDRESS },
@@ -143,12 +144,34 @@ export const useYaytsoContract = () => {
   };
 
   const layYaytso = async (
-    wallet: any,
+    wallet: WalletState,
     recipient: string,
     pattern: string,
     uri: string
   ) => {
-    console.log(wallet);
+    if (!wallet.signer) {
+      return console.error("signer missing");
+    }
+    if (!state.yaytsoContract) {
+      return console.error("contract is missing");
+    }
+    const contractSigner = state.yaytsoContract.connect(wallet.signer);
+    const id = 0;
+    const tx = await contractSigner
+      .layYaytso(
+        wallet.address,
+        wallet.yaytsoMeta[id].patternHash,
+        wallet.yaytsoCIDS[id].metaCID
+      )
+      .catch((e: any) => ({ error: true, message: e }));
+    if (tx.error) {
+      alert("no dupes");
+      return console.error(tx.message);
+    }
+    const receipt = await tx.wait();
+    for (const event of receipt.events) {
+      console.log(event);
+    }
   };
 
   return { contract: state.yaytsoContract, getYaytsoURI, layYaytso };

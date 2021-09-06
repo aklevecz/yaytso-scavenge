@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useYaytsoContract } from "../../contexts/ContractContext";
 import Button from "../../components/Button";
-import { useModalToggle } from "../../contexts/ModalContext";
+import { useModalData, useModalToggle } from "../../contexts/ModalContext";
 import { BiAnim } from "./Transitions";
 
 const Recipient = () => {
@@ -28,9 +27,11 @@ enum Step {
 
 export default function Mint() {
   const { modalState, onModalNext } = useModalToggle();
-  const { layYaytso } = useYaytsoContract();
+  const { data } = useModalData();
   const [step, setStep] = useState(Step.Recipient);
   const nextStep = () => onModalNext();
+
+  const { layYaytso, wallet, contract } = data;
   return (
     <div>
       <div className="modal__title">Mint</div>
@@ -41,7 +42,7 @@ export default function Mint() {
         </div>
       </BiAnim>
       <div className="modal__button-container">
-        <Button name="Ok" onClick={() => layYaytso(data, "", "", "")} />
+        <Button name="Ok" onClick={() => layYaytso(wallet, "", "", "")} />
       </div>
     </div>
   );

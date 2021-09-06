@@ -5,6 +5,7 @@ import Egg from "./containers/Egg";
 import { ThreeProvider } from "./contexts/ThreeContext";
 import { PatternProvider } from "./contexts/PatternContext";
 import { WalletProvider } from "./contexts/WalletContext";
+import { ContractProvider } from "./contexts/ContractContext";
 import Nav from "./components/Nav";
 
 export default function Routes() {
@@ -14,7 +15,9 @@ export default function Routes() {
       <Switch>
         <Route path="/wallet">
           <WalletProvider>
-            <Wallet />
+            <ContractProvider>
+              <Wallet />
+            </ContractProvider>
           </WalletProvider>
         </Route>
         <Route path="/egg">

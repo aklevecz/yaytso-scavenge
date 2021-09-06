@@ -1,13 +1,23 @@
 import Button from "../../components/Button";
-import { useYaytsoSVGs, useMetaMask } from "../../contexts/WalletContext";
+import {
+  useYaytsoSVGs,
+  useMetaMask,
+  useWallet,
+  useWalletConnect,
+} from "../../contexts/WalletContext";
 import { useOpenModal } from "../../contexts/ModalContext";
 import { ModalTypes } from "../../contexts/types";
+import { useYaytsoContract } from "../../contexts/ContractContext";
 
 const ADDRESS = "0x64Cd8c5207A69916232Bda691aC52Bc3326D80AE";
 
 export default function Wallet() {
   const { svgs } = useYaytsoSVGs();
+  const wallet = useWallet();
+  const { contract, layYaytso } = useYaytsoContract();
   const { metamaskConnect, isConnected } = useMetaMask();
+  const walletConnect = useWalletConnect();
+  console.log(walletConnect, "wallet render");
   const openModal = useOpenModal();
   return (
     <div className="wallet__root">
@@ -34,7 +44,9 @@ export default function Wallet() {
                 <div dangerouslySetInnerHTML={{ __html: svg }} />
                 <Button
                   name="Mint"
-                  onClick={() => openModal(ModalTypes.Mint)}
+                  onClick={() =>
+                    openModal(ModalTypes.Mint, { wallet, contract, layYaytso })
+                  }
                 />
               </div>
             );

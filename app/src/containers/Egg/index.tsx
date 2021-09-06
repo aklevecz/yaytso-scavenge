@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { Fragment, useEffect, useRef } from "react";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import Button from "../../components/Button";
@@ -50,10 +51,17 @@ export default function Egg() {
         const data = createBlobs(sceneGLTF, eggVG, description, name);
         const r = await pinBlobs(data);
         if (r.success) {
+          var arr: any = [];
+          for (var p in Object.getOwnPropertyNames(r.byteArray)) {
+            arr[p] = r.byteArray[p];
+          }
+
+          const patternHash = ethers.utils.hexlify(arr);
           const response = await saveYaytso(
             user.uid,
             name,
             description,
+            patternHash,
             r.metaCID,
             r.svgCID,
             r.gltfCID

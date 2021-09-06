@@ -18,7 +18,10 @@ const modalMap = {
   cartonContent: { component: <CartonContent />, maxState: 0 },
   eggMaker: { component: <EggMaker />, maxState: 2 },
   login: { component: <Login />, maxState: 1 },
-  mint: { component: <Mint />, maxState: 1 },
+  mint: {
+    component: <Mint />,
+    maxState: 1,
+  },
 };
 
 export default function Modal() {

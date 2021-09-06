@@ -7,7 +7,6 @@ import "./styles/nav.css";
 import "./styles/wallet.css";
 
 import App from "./App";
-import { ContractProvider } from "./contexts/ContractContext";
 import { MapProvider } from "./contexts/MapContext";
 import { ModalProvider } from "./contexts/ModalContext";
 import { CartonProvider } from "./contexts/CartonContext";
@@ -15,15 +14,13 @@ import { UserProvider } from "./contexts/UserContext";
 
 ReactDOM.render(
   <ModalProvider>
-    <ContractProvider>
-      <CartonProvider>
-        <MapProvider>
-          <UserProvider>
-            <App />
-          </UserProvider>
-        </MapProvider>
-      </CartonProvider>
-    </ContractProvider>
+    <CartonProvider>
+      <MapProvider>
+        <UserProvider>
+          <App />
+        </UserProvider>
+      </MapProvider>
+    </CartonProvider>
   </ModalProvider>,
   document.getElementById("root")
 );

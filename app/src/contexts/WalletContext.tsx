@@ -1,16 +1,19 @@
 import { ethers } from "ethers";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import { IPFS_URL } from "../constants";
 import { db, YAYTSOS } from "../firebase";
-import { YaytsoCID, YaytsoMeta } from "./types";
+import {
+  WalletConnectState,
+  WalletState,
+  WalletTypes,
+  YaytsoCID,
+  YaytsoMeta,
+} from "./types";
 import { useUser } from "./UserContext";
 import { Web3WindowApi } from "./Web3WindowApi";
+
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
 
 declare global {
   interface Window {
@@ -26,36 +29,38 @@ type Action =
       address: string;
       chainId: number;
     }
+  | {
+      type: "SET_WALLETCONNECT";
+      wallet: WalletConnectState;
+    }
   | { type: "DISCONNECT" }
-  | { type: "createWallet"; wallet: ethers.Wallet }
+  // | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
+  | { type: "SET_META"; yaytsoMeta: YaytsoMeta[] }
   | { type: "SET_SVGs"; yaytsoSVGs: string[] };
 
 type Dispatch = (action: Action) => void;
 
-type State = {
-  wallet: ethers.Wallet | undefined;
-  connected: boolean;
-  provider:
-    | ethers.providers.BaseProvider
-    | ethers.providers.Web3Provider
-    | undefined;
-  signer: ethers.Signer | undefined;
-  address: string;
-  chainId: number | undefined;
-  yaytsoCollection: YaytsoMeta[];
-  yaytsoCIDS: YaytsoCID[];
-  yaytsoSVGs: string[];
-};
+type State = WalletState;
 
+const wallet = {
+  type: WalletTypes.Null,
+  metaMask: {
+    provider: undefined,
+    signer: undefined,
+    address: "",
+    chainId: undefined,
+  },
+  walletConnect: undefined,
+};
 const initialState = {
-  wallet: undefined,
+  wallet,
   connected: false,
   provider: undefined,
   signer: undefined,
   address: "",
   chainId: undefined,
-  yaytsoCollection: [],
+  yaytsoMeta: [],
   yaytsoCIDS: [],
   yaytsoSVGs: [],
 };
@@ -91,10 +96,21 @@ const reducer = (state: State, action: Action) => {
         chainId: action.chainId,
         connected: true,
       };
-    case "createWallet":
-      return { ...state, wallet: action.wallet };
+    // case "createWallet":
+    //   return { ...state, wallet: action.wallet };
+    case "SET_WALLETCONNECT":
+      return {
+        ...state,
+        wallet: {
+          ...state.wallet,
+          type: WalletTypes.WalletConnect,
+          walletConnect: action.wallet,
+        },
+      };
     case "SET_CIDS":
       return { ...state, yaytsoCIDS: action.yaytsoCIDS };
+    case "SET_META":
+      return { ...state, yaytsoMeta: action.yaytsoMeta };
     case "SET_SVGs":
       return { ...state, yaytsoSVGs: action.yaytsoSVGs };
     case "DISCONNECT":
@@ -130,7 +146,7 @@ const WalletProvider = ({
     const wallet = localStorage.getItem("wallet");
     if (wallet) {
       const web3Wallet = new ethers.Wallet(wallet);
-      dispatch({ type: "createWallet", wallet: web3Wallet });
+      // dispatch({ type: "createWallet", wallet: web3Wallet });
     }
   }, []);
 
@@ -141,17 +157,19 @@ const WalletProvider = ({
         .get()
         .then((snapshot) => {
           let yaytsoCIDS: YaytsoCID[] = [];
+          let yaytsoMeta: YaytsoMeta[] = [];
           snapshot.forEach((data) => {
-            const { metaCID, svgCID, gltfCID } = data.data();
+            const { metaCID, svgCID, gltfCID, name, description, patternHash } =
+              data.data();
             yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
+            yaytsoMeta.push({ name, description, patternHash, image: "" });
           });
           dispatch({ type: "SET_CIDS", yaytsoCIDS });
+          dispatch({ type: "SET_META", yaytsoMeta });
         });
     }
   }, [user]);
-
   const value = { state, dispatch, initWallet, disconnect };
-  console.log(state);
   return (
     <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
   );
@@ -161,7 +179,6 @@ export { WalletContext, WalletProvider };
 
 export const useWallet = () => {
   const context = useContext(WalletContext);
-
   if (context === undefined) {
     throw new Error("Wallet Context error in Wallet hook");
   }
@@ -233,4 +250,62 @@ export const useMetaMask = () => {
   };
 
   return { metamaskConnect, isConnected: state.connected };
+};
+
+export const useWalletConnect = () => {
+  const context = useContext(WalletContext);
+  if (context === undefined) {
+    throw new Error("Wallet Context error in WalletConnect hook");
+  }
+
+  const { dispatch, state } = context;
+
+  useEffect(() => {
+    const connector = new WalletConnect({
+      bridge: "https://bridge.walletconnect.org", // Required
+      qrcodeModal: QRCodeModal,
+    });
+
+    if (!connector.connected) {
+      connector.createSession();
+    } else {
+      const { accounts, chainId } = connector;
+      dispatch({
+        type: "SET_WALLETCONNECT",
+        wallet: { address: accounts[0], chainId, connector },
+      });
+    }
+
+    connector.on("connect", (error, payload) => {
+      if (error) {
+        throw error;
+      }
+      const { accounts, chainId } = payload.params[0];
+      dispatch({
+        type: "SET_WALLETCONNECT",
+        wallet: { connector, address: accounts[0], chainId },
+      });
+    });
+
+    connector.on("session_update", (error, payload) => {
+      if (error) {
+        throw error;
+      }
+
+      const { accounts, chainId } = payload.params[0];
+      console.log("update");
+      dispatch({
+        type: "SET_WALLETCONNECT",
+        wallet: { connector, address: accounts[0], chainId },
+      });
+    });
+
+    connector.on("disconnect", (error, payload) => {
+      if (error) {
+        throw error;
+      }
+      console.log("disconnect");
+    });
+  }, []);
+  return state;
 };
