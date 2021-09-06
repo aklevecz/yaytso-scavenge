@@ -202,6 +202,9 @@ export const useUserLocation = () => {
     });
 
     const markerDom = await getMarker(`img[src='${smilerSVG}']`);
+    if (!markerDom) {
+      return console.log("marker is gone");
+    }
     delay(100, () => {
       markerDom.classList.add("pulse");
       dispatch({

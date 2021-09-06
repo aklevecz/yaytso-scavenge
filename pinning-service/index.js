@@ -37,6 +37,7 @@ const dev = process.env.NODE_ENV === "dev";
 
   app.post("/", upload.any(), async (req, res) => {
     const { name, desc } = JSON.parse(req.body.metadata);
+    console.log(name, desc);
     const gltf = req.files[0];
     const svg = req.files[1];
     const gltfCID = await store(gltf.buffer);

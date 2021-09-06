@@ -101,6 +101,8 @@ const reducer = (state: State, action: Action) => {
     case "SET_WALLETCONNECT":
       return {
         ...state,
+        connected: true,
+        address: action.wallet.address,
         wallet: {
           ...state.wallet,
           type: WalletTypes.WalletConnect,
@@ -266,14 +268,21 @@ export const useWalletConnect = () => {
       qrcodeModal: QRCodeModal,
     });
 
+    const walletConnect = (
+      address: string,
+      chainId: number,
+      connector: WalletConnect
+    ) =>
+      dispatch({
+        type: "SET_WALLETCONNECT",
+        wallet: { address, chainId, connector },
+      });
+
     if (!connector.connected) {
       connector.createSession();
     } else {
       const { accounts, chainId } = connector;
-      dispatch({
-        type: "SET_WALLETCONNECT",
-        wallet: { address: accounts[0], chainId, connector },
-      });
+      walletConnect(accounts[0], chainId, connector);
     }
 
     connector.on("connect", (error, payload) => {
@@ -281,10 +290,7 @@ export const useWalletConnect = () => {
         throw error;
       }
       const { accounts, chainId } = payload.params[0];
-      dispatch({
-        type: "SET_WALLETCONNECT",
-        wallet: { connector, address: accounts[0], chainId },
-      });
+      walletConnect(accounts[0], chainId, connector);
     });
 
     connector.on("session_update", (error, payload) => {
@@ -293,18 +299,14 @@ export const useWalletConnect = () => {
       }
 
       const { accounts, chainId } = payload.params[0];
-      console.log("update");
-      dispatch({
-        type: "SET_WALLETCONNECT",
-        wallet: { connector, address: accounts[0], chainId },
-      });
+      walletConnect(accounts[0], chainId, connector);
     });
 
     connector.on("disconnect", (error, payload) => {
       if (error) {
         throw error;
       }
-      console.log("disconnect");
+      context.disconnect();
     });
   }, []);
   return state;

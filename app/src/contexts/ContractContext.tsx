@@ -8,7 +8,8 @@ import {
 import { ethers } from "ethers";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
-import { WalletState } from "./types";
+import { WalletState, WalletTypes } from "./types";
+import { WalletContext } from "./WalletContext";
 
 const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -128,6 +129,7 @@ export const useCartonContract = () => {
 
 export const useYaytsoContract = () => {
   const context = useContext(ContractContext);
+  const wallet = useContext(WalletContext);
 
   if (context === undefined) {
     throw new Error("Carton Context error in Cartons hook");
@@ -135,12 +137,28 @@ export const useYaytsoContract = () => {
 
   const { dispatch, state } = context;
 
+  const { yaytsoContract } = state;
+
   const getYaytsoURI = async (yaytsoId: number) => {
-    if (!state.yaytsoContract) {
+    if (!yaytsoContract) {
       return null;
     }
-    const meta = await state.yaytsoContract.tokenURI(yaytsoId);
+    const meta = await yaytsoContract.tokenURI(yaytsoId);
     return meta;
+  };
+
+  const rawLayYaytsoTx = async (
+    yaytsoContract: ethers.Contract,
+    wallet: WalletState,
+    patternHash: string,
+    metaCID: string
+  ) => {
+    const raw = await yaytsoContract.populateTransaction.layYaytso(
+      wallet.address,
+      patternHash,
+      metaCID
+    );
+    return raw;
   };
 
   const layYaytso = async (
@@ -149,28 +167,57 @@ export const useYaytsoContract = () => {
     pattern: string,
     uri: string
   ) => {
-    if (!wallet.signer) {
-      return console.error("signer missing");
-    }
-    if (!state.yaytsoContract) {
+    if (!yaytsoContract) {
       return console.error("contract is missing");
     }
-    const contractSigner = state.yaytsoContract.connect(wallet.signer);
-    const id = 0;
-    const tx = await contractSigner
-      .layYaytso(
-        wallet.address,
-        wallet.yaytsoMeta[id].patternHash,
-        wallet.yaytsoCIDS[id].metaCID
-      )
-      .catch((e: any) => ({ error: true, message: e }));
-    if (tx.error) {
-      alert("no dupes");
-      return console.error(tx.message);
+    const id = 1;
+    const address = wallet.address;
+    const patternHash = wallet.yaytsoMeta[id].patternHash;
+    const metaCID = wallet.yaytsoCIDS[id].metaCID;
+
+    if (wallet.wallet.type === WalletTypes.MetaMask) {
+      if (!wallet.signer) {
+        return console.error("signer missing");
+      }
+      const contractSigner = yaytsoContract.connect(wallet.signer);
+      const tx = await contractSigner
+        .layYaytso(address, patternHash, metaCID)
+        .catch((e: any) => ({ error: true, message: e }));
+      if (tx.error) {
+        alert("no dupes");
+        return console.error(tx.message);
+      }
+      const receipt = await tx.wait();
+      for (const event of receipt.events) {
+        console.log(event);
+      }
     }
-    const receipt = await tx.wait();
-    for (const event of receipt.events) {
-      console.log(event);
+
+    if (wallet.wallet.type === WalletTypes.WalletConnect) {
+      if (!wallet.wallet.walletConnect) {
+        console.log("no connect");
+        return null;
+      }
+      const rawTx = await rawLayYaytsoTx(
+        yaytsoContract,
+        wallet,
+        patternHash,
+        metaCID
+      );
+      console.log(rawTx);
+      const tx = {
+        from: wallet.address,
+        to: rawTx.to,
+        data: rawTx.data,
+        // gasPrice: ethers.utils.hexlify(80000000000), // Optional
+      };
+      console.log("send it");
+      wallet.wallet.walletConnect.connector
+        .sendTransaction(tx)
+        .then((txHash) => {
+          console.log(txHash);
+        })
+        .catch(console.log);
     }
   };
 

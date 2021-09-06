@@ -17,7 +17,6 @@ export default function Wallet() {
   const { contract, layYaytso } = useYaytsoContract();
   const { metamaskConnect, isConnected } = useMetaMask();
   const walletConnect = useWalletConnect();
-  console.log(walletConnect, "wallet render");
   const openModal = useOpenModal();
   return (
     <div className="wallet__root">
