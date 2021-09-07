@@ -6,20 +6,33 @@
 
 .wallet__container {
   display: grid;
-  grid-template-rows: 150px 1fr 150px;
+  /* grid-template-rows: 150px 1fr 150px; */
   height: 100%;
 }
 
 .wallet__address {
   word-break: break-all;
-  width: 225px;
-  font-size: 18px;
+  font-size: 1rem;
+  margin: 0px 25px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 30px;
 }
 
 .wallet__egg-container {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .wallet__egg-container div {
-  flex: 1 0 auto;
+  flex: 0 0 50%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.wallet__egg-wrapper {
+  display: grid;
+  grid-template-rows: 80% 20%;
 }

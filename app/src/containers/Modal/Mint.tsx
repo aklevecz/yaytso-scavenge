@@ -31,7 +31,7 @@ export default function Mint() {
   const [step, setStep] = useState(Step.Recipient);
   const nextStep = () => onModalNext();
 
-  const { layYaytso, wallet, contract } = data;
+  const { layYaytso } = data;
   return (
     <div>
       <div className="modal__title">Mint</div>
@@ -42,7 +42,7 @@ export default function Mint() {
         </div>
       </BiAnim>
       <div className="modal__button-container">
-        <Button name="Ok" onClick={() => layYaytso(wallet, "", "", "")} />
+        <Button name="Ok" onClick={layYaytso} />
       </div>
     </div>
   );

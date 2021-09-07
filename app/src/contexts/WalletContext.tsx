@@ -1,8 +1,16 @@
 import { ethers } from "ethers";
-import { createContext, useContext, useEffect, useReducer } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { IPFS_URL } from "../constants";
 import { db, YAYTSOS } from "../firebase";
 import {
+  Eth,
   WalletConnectState,
   WalletState,
   WalletTypes,
@@ -14,6 +22,7 @@ import { Web3WindowApi } from "./Web3WindowApi";
 
 import WalletConnect from "@walletconnect/client";
 import QRCodeModal from "@walletconnect/qrcode-modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 declare global {
   interface Window {
@@ -28,10 +37,7 @@ type Action =
       signer: ethers.Signer;
       address: string;
       chainId: number;
-    }
-  | {
-      type: "SET_WALLETCONNECT";
-      wallet: WalletConnectState;
+      walletType: WalletTypes;
     }
   | { type: "DISCONNECT" }
   // | { type: "createWallet"; wallet: ethers.Wallet }
@@ -43,18 +49,15 @@ type Dispatch = (action: Action) => void;
 
 type State = WalletState;
 
-const wallet = {
-  type: WalletTypes.Null,
-  metaMask: {
-    provider: undefined,
-    signer: undefined,
-    address: "",
-    chainId: undefined,
-  },
-  walletConnect: undefined,
-};
+// const wallet = {
+//   type: WalletTypes.Null,
+//   provider: undefined,
+//   signer: undefined,
+//   address: "",
+//   chainId: undefined,
+// };
 const initialState = {
-  wallet,
+  eth: undefined,
   connected: false,
   provider: undefined,
   signer: undefined,
@@ -69,17 +72,7 @@ const WalletContext = createContext<
   | {
       state: State;
       dispatch: Dispatch;
-      initWallet({
-        provider,
-        signer,
-        address,
-        chainId,
-      }: {
-        provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
-        signer: ethers.Signer;
-        address: string;
-        chainId: number;
-      }): void;
+      initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
       disconnect(): void;
     }
   | undefined
@@ -94,20 +87,15 @@ const reducer = (state: State, action: Action) => {
         signer: action.signer,
         provider: action.provider,
         chainId: action.chainId,
-        connected: true,
-      };
-    // case "createWallet":
-    //   return { ...state, wallet: action.wallet };
-    case "SET_WALLETCONNECT":
-      return {
-        ...state,
-        connected: true,
-        address: action.wallet.address,
-        wallet: {
-          ...state.wallet,
-          type: WalletTypes.WalletConnect,
-          walletConnect: action.wallet,
+        walletType: action.walletType,
+        eth: {
+          address: action.address,
+          signer: action.signer,
+          provider: action.provider,
+          chainId: action.chainId,
+          walletType: action.walletType,
         },
+        connected: true,
       };
     case "SET_CIDS":
       return { ...state, yaytsoCIDS: action.yaytsoCIDS };
@@ -135,12 +123,16 @@ const WalletProvider = ({
     address,
     chainId,
     provider,
-  }: {
-    signer: ethers.Signer;
-    address: string;
-    chainId: number;
-    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
-  }) => dispatch({ type: "INIT_WALLET", signer, address, chainId, provider });
+    walletType,
+  }: Eth) =>
+    dispatch({
+      type: "INIT_WALLET",
+      signer,
+      address,
+      chainId,
+      provider,
+      walletType,
+    });
 
   const disconnect = () => dispatch({ type: "DISCONNECT" });
 
@@ -234,7 +226,13 @@ export const useMetaMask = () => {
     const { address, chainId } = await web3.requestAccount().catch(console.log);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    initWallet({ signer, address, chainId, provider });
+    initWallet({
+      signer,
+      address,
+      chainId,
+      provider,
+      walletType: WalletTypes.MetaMask,
+    });
     return web3;
   };
 
@@ -256,58 +254,52 @@ export const useMetaMask = () => {
 
 export const useWalletConnect = () => {
   const context = useContext(WalletContext);
+  const [walletConnectProvider, setWalletConnectProvider] = useState(
+    new WalletConnectProvider({
+      infuraId: process.env.REACT_APP_INFURA_KEY,
+      chainId: process.env.NODE_ENV === "development" ? 4 : 1,
+    })
+  );
   if (context === undefined) {
     throw new Error("Wallet Context error in WalletConnect hook");
   }
 
-  const { dispatch, state } = context;
+  const { dispatch, state, initWallet } = context;
+
+  const startProvider = useCallback(async () => {
+    await walletConnectProvider.enable();
+    const provider = new ethers.providers.Web3Provider(walletConnectProvider);
+    const address = (await provider.listAccounts())[0];
+    const chainId = (await provider.getNetwork()).chainId;
+    const signer = provider.getSigner();
+    initWallet({
+      provider,
+      address,
+      chainId,
+      signer,
+      walletType: WalletTypes.WalletConnect,
+    });
+    walletConnectProvider.on("accountsChanged", (accounts: string[]) => {
+      console.log(accounts);
+    });
+
+    // Subscribe to chainId change
+    walletConnectProvider.on("chainChanged", (chainId: number) => {
+      console.log(chainId);
+    });
+
+    // Subscribe to session disconnection
+    walletConnectProvider.on("disconnect", (code: number, reason: string) => {
+      console.log(code, reason);
+    });
+  }, [walletConnectProvider]);
 
   useEffect(() => {
-    const connector = new WalletConnect({
-      bridge: "https://bridge.walletconnect.org", // Required
-      qrcodeModal: QRCodeModal,
-    });
-
-    const walletConnect = (
-      address: string,
-      chainId: number,
-      connector: WalletConnect
-    ) =>
-      dispatch({
-        type: "SET_WALLETCONNECT",
-        wallet: { address, chainId, connector },
-      });
-
-    if (!connector.connected) {
-      connector.createSession();
-    } else {
-      const { accounts, chainId } = connector;
-      walletConnect(accounts[0], chainId, connector);
+    const hasWallet = localStorage.getItem("walletconnect");
+    if (hasWallet && JSON.parse(hasWallet).connected) {
+      startProvider();
     }
+  }, [walletConnectProvider, startProvider]);
 
-    connector.on("connect", (error, payload) => {
-      if (error) {
-        throw error;
-      }
-      const { accounts, chainId } = payload.params[0];
-      walletConnect(accounts[0], chainId, connector);
-    });
-
-    connector.on("session_update", (error, payload) => {
-      if (error) {
-        throw error;
-      }
-
-      const { accounts, chainId } = payload.params[0];
-      walletConnect(accounts[0], chainId, connector);
-    });
-
-    connector.on("disconnect", (error, payload) => {
-      if (error) {
-        throw error;
-      }
-      context.disconnect();
-    });
-  }, []);
-  return state;
+  return { startProvider };
 };

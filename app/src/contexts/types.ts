@@ -54,22 +54,16 @@ export enum WalletTypes {
   MetaMask,
 }
 
-type Wallet = {
-  type: WalletTypes;
-  metaMask: {
-    provider:
-      | ethers.providers.Web3Provider
-      | ethers.providers.BaseProvider
-      | undefined;
-    signer: ethers.Signer | undefined;
-    address: string;
-    chainId: number | undefined;
-  };
-  walletConnect: WalletConnectState | undefined;
+export type Eth = {
+  walletType: WalletTypes;
+  chainId: number;
+  provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+  signer: ethers.Signer;
+  address: string;
 };
 
 export type WalletState = {
-  wallet: Wallet;
+  eth: Eth | undefined;
   connected: boolean;
   provider:
     | ethers.providers.BaseProvider

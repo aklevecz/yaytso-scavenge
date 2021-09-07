@@ -20,14 +20,14 @@ export default function Routes() {
             </ContractProvider>
           </WalletProvider>
         </Route>
-        <Route path="/egg">
+        <Route path="/map" component={Map} />
+        <Route path="/">
           <PatternProvider>
             <ThreeProvider>
               <Egg />
             </ThreeProvider>
           </PatternProvider>
         </Route>
-        <Route path="/" component={Map} />
       </Switch>
     </Router>
   );

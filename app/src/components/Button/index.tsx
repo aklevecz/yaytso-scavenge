@@ -1,4 +1,4 @@
-type Sizes = "s" | "md" | "lg";
+type Sizes = "s" | "md" | "lg" | "flex";
 
 type Props = {
   name: string;

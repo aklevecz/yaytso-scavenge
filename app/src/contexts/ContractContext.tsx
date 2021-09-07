@@ -6,6 +6,7 @@ import {
   useReducer,
 } from "react";
 import { ethers } from "ethers";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
 import { WalletState, WalletTypes } from "./types";
@@ -129,8 +130,6 @@ export const useCartonContract = () => {
 
 export const useYaytsoContract = () => {
   const context = useContext(ContractContext);
-  const wallet = useContext(WalletContext);
-
   if (context === undefined) {
     throw new Error("Carton Context error in Cartons hook");
   }
@@ -139,85 +138,59 @@ export const useYaytsoContract = () => {
 
   const { yaytsoContract } = state;
 
+  if (!yaytsoContract) {
+    console.log("yaytso contract is not loaded yet");
+    return { contract: null, getYaytsoURI: () => {}, layYaytso: () => {} };
+  } else {
+    console.log("contract is loaded");
+  }
+
   const getYaytsoURI = async (yaytsoId: number) => {
-    if (!yaytsoContract) {
-      return null;
-    }
     const meta = await yaytsoContract.tokenURI(yaytsoId);
     return meta;
   };
 
-  const rawLayYaytsoTx = async (
-    yaytsoContract: ethers.Contract,
-    wallet: WalletState,
-    patternHash: string,
-    metaCID: string
-  ) => {
-    const raw = await yaytsoContract.populateTransaction.layYaytso(
-      wallet.address,
-      patternHash,
-      metaCID
-    );
-    return raw;
+  const isWalletReady = (wallet: WalletState) => {
+    if (!wallet) {
+      console.error("wallet is missing");
+      return false;
+    }
+    if (!wallet.signer) {
+      console.error("signer missing");
+      return false;
+    }
+    if (!wallet.address) {
+      console.error("address is missing");
+      return false;
+    }
+    return true;
   };
 
+  // I dunno if this will really be used anywhere else besides that one container
+  // maybe break out some of the context functions into their particular containers to clean up
   const layYaytso = async (
-    wallet: WalletState,
-    recipient: string,
-    pattern: string,
-    uri: string
+    address: string,
+    signer: ethers.Signer,
+    patternHash: string,
+    metaCID: string,
+    index: number
   ) => {
-    if (!yaytsoContract) {
-      return console.error("contract is missing");
-    }
-    const id = 1;
-    const address = wallet.address;
-    const patternHash = wallet.yaytsoMeta[id].patternHash;
-    const metaCID = wallet.yaytsoCIDS[id].metaCID;
+    const id = index;
+    // const address = wallet.address;
+    // const patternHash = wallet.yaytsoMeta[id].patternHash;
+    // const metaCID = wallet.yaytsoCIDS[id].metaCID;
 
-    if (wallet.wallet.type === WalletTypes.MetaMask) {
-      if (!wallet.signer) {
-        return console.error("signer missing");
-      }
-      const contractSigner = yaytsoContract.connect(wallet.signer);
-      const tx = await contractSigner
-        .layYaytso(address, patternHash, metaCID)
-        .catch((e: any) => ({ error: true, message: e }));
-      if (tx.error) {
-        alert("no dupes");
-        return console.error(tx.message);
-      }
-      const receipt = await tx.wait();
-      for (const event of receipt.events) {
-        console.log(event);
-      }
+    const contractSigner = yaytsoContract.connect(signer);
+    const tx = await contractSigner
+      .layYaytso(address, patternHash, metaCID)
+      .catch((e: any) => ({ error: true, message: e }));
+    if (tx.error) {
+      alert("no dupes");
+      return console.error(tx.message);
     }
-
-    if (wallet.wallet.type === WalletTypes.WalletConnect) {
-      if (!wallet.wallet.walletConnect) {
-        console.log("no connect");
-        return null;
-      }
-      const rawTx = await rawLayYaytsoTx(
-        yaytsoContract,
-        wallet,
-        patternHash,
-        metaCID
-      );
-      console.log(rawTx);
-      const tx = {
-        from: wallet.address,
-        to: rawTx.to,
-        data: rawTx.data,
-        // gasPrice: ethers.utils.hexlify(80000000000), // Optional
-      };
-      console.log("send it");
-      wallet.wallet.walletConnect.connector
-        .sendTransaction(tx)
-        .then((txHash) => {
-          console.log(txHash);
-        })
-        .catch(console.log);
+    const receipt = await tx.wait();
+    for (const event of receipt.events) {
+      console.log(event);
     }
   };
 
