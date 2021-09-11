@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
+import LoadingButton from "../../components/Button/LoadingButton";
+import { TxStates, useYaytsoContract } from "../../contexts/ContractContext";
 import { useModalData, useModalToggle } from "../../contexts/ModalContext";
 import { BiAnim } from "./Transitions";
 
@@ -27,11 +29,21 @@ enum Step {
 
 export default function Mint() {
   const { modalState, onModalNext } = useModalToggle();
+  const { layYaytso, txState } = useYaytsoContract();
   const { data } = useModalData();
-  const [step, setStep] = useState(Step.Recipient);
+  const [step, setStep] = useState(Step.Confirmation);
   const nextStep = () => onModalNext();
 
-  const { layYaytso } = data;
+  const txStates = [
+    "",
+    "Waiting for signature",
+    "Minting...",
+    "Completed!",
+    "Failed!",
+  ];
+
+  const { id } = data;
+  const lay = () => layYaytso(id);
   return (
     <div>
       <div className="modal__title">Mint</div>
@@ -39,10 +51,16 @@ export default function Mint() {
         <div className="modal__block">
           {step === Step.Recipient && <Recipient />}
           {step === Step.Confirmation && <Confirmation />}
+          {txStates[txState ? txState : 0]}
         </div>
       </BiAnim>
       <div className="modal__button-container">
-        <Button name="Ok" onClick={layYaytso} />
+        {txState === TxStates.Idle && <Button name="Ok" onClick={lay} />}
+        {/* {txState && txState > TxStates.Idle && txState < TxStates.Completed ? (
+          <LoadingButton color="white" />
+        ) : (
+          ""
+        )} */}
       </div>
     </div>
   );

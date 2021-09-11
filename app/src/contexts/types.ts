@@ -29,6 +29,12 @@ export type Carton = {
   yaytsoId: number | undefined;
 };
 
+export type Egg = {
+  name: string | undefined;
+  description: string | undefined;
+  recipient: string | undefined;
+};
+
 export type YaytsoMeta = {
   name: string;
   description: string;

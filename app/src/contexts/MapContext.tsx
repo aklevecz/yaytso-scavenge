@@ -175,7 +175,7 @@ export const useMap = () => {
     }
   }, [cartons]);
 
-  return { mapContainer, initMap, loading: state.loading };
+  return { mapContainer, initMap, loading: state.loading, map: state.map };
 };
 
 export const useUserLocation = () => {

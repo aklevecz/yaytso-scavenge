@@ -1,21 +1,24 @@
 .nav {
-  display: grid;
-  grid-auto-flow: column;
-  margin: 10px;
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
 }
 
 .nav a {
-  color: black;
+  color: #ffffff;
   text-decoration: none;
-  border: 2px solid black;
-  margin: 10px;
-  padding: 5px;
-  transition: color 1s, background 1s;
+  padding: 8px 12px;
+  transition: color 1s, background 1s, border-bottom 1s;
+  font-size: 1.1rem;
+  /* font-weight: bold; */
+  width: 100px;
+  flex-grow: 1;
+  background-color: black;
 }
 
 a.active {
-  color: white;
-  background: black;
+  color: black;
+  background-color: white;
 }
 
 .nav__container {

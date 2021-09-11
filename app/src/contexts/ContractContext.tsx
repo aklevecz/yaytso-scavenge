@@ -4,13 +4,12 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useState,
 } from "react";
 import { ethers } from "ethers";
-import WalletConnectProvider from "@walletconnect/web3-provider";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
-import { WalletState, WalletTypes } from "./types";
-import { WalletContext } from "./WalletContext";
+import { useWallet } from "./WalletContext";
 
 const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -128,8 +127,18 @@ export const useCartonContract = () => {
   return state.cartonContract;
 };
 
+export enum TxStates {
+  Idle,
+  Waiting,
+  Minting,
+  Completed,
+  Failed,
+}
+
 export const useYaytsoContract = () => {
+  const [txState, setTxState] = useState<TxStates>(TxStates.Idle);
   const context = useContext(ContractContext);
+  const wallet = useWallet();
   if (context === undefined) {
     throw new Error("Carton Context error in Cartons hook");
   }
@@ -137,12 +146,11 @@ export const useYaytsoContract = () => {
   const { dispatch, state } = context;
 
   const { yaytsoContract } = state;
+  const { address, signer } = wallet;
 
-  if (!yaytsoContract) {
-    console.log("yaytso contract is not loaded yet");
+  if (!yaytsoContract || !wallet || !signer) {
     return { contract: null, getYaytsoURI: () => {}, layYaytso: () => {} };
   } else {
-    console.log("contract is loaded");
   }
 
   const getYaytsoURI = async (yaytsoId: number) => {
@@ -150,37 +158,12 @@ export const useYaytsoContract = () => {
     return meta;
   };
 
-  const isWalletReady = (wallet: WalletState) => {
-    if (!wallet) {
-      console.error("wallet is missing");
-      return false;
-    }
-    if (!wallet.signer) {
-      console.error("signer missing");
-      return false;
-    }
-    if (!wallet.address) {
-      console.error("address is missing");
-      return false;
-    }
-    return true;
-  };
-
-  // I dunno if this will really be used anywhere else besides that one container
-  // maybe break out some of the context functions into their particular containers to clean up
-  const layYaytso = async (
-    address: string,
-    signer: ethers.Signer,
-    patternHash: string,
-    metaCID: string,
-    index: number
-  ) => {
-    const id = index;
-    // const address = wallet.address;
-    // const patternHash = wallet.yaytsoMeta[id].patternHash;
-    // const metaCID = wallet.yaytsoCIDS[id].metaCID;
-
+  const layYaytso = async (index: number) => {
+    const patternHash = wallet.yaytsoMeta[index].patternHash;
+    const metaCID = wallet.yaytsoCIDS[index].metaCID;
     const contractSigner = yaytsoContract.connect(signer);
+
+    setTxState(TxStates.Waiting);
     const tx = await contractSigner
       .layYaytso(address, patternHash, metaCID)
       .catch((e: any) => ({ error: true, message: e }));
@@ -188,11 +171,18 @@ export const useYaytsoContract = () => {
       alert("no dupes");
       return console.error(tx.message);
     }
+
+    setTxState(TxStates.Minting);
     const receipt = await tx.wait();
+    console.log(receipt);
     for (const event of receipt.events) {
-      console.log(event);
+      if (event.event === "YaytsoLaid") {
+        setTxState(TxStates.Completed);
+      } else {
+        setTxState(TxStates.Failed);
+      }
     }
   };
 
-  return { contract: state.yaytsoContract, getYaytsoURI, layYaytso };
+  return { contract: state.yaytsoContract, getYaytsoURI, layYaytso, txState };
 };

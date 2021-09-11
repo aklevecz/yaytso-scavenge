@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Button from "../../components/Button";
 import { useModalToggle } from "../../contexts/ModalContext";
 import { BiAnim } from "./Transitions";
@@ -9,6 +9,7 @@ import { BiAnim } from "./Transitions";
 // Or this could be a generate component that takes an update function and viewDataMap
 export default function SlideModal({ propMap, updateCallback }: any) {
   // const [state, setState] = useState(0);
+  const ref = useRef<HTMLInputElement>(null);
   const { modalState, onModalNext, maxState, toggleModal } = useModalToggle();
   const state = modalState;
   const [view, setView] = useState(0);
@@ -28,6 +29,10 @@ export default function SlideModal({ propMap, updateCallback }: any) {
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => ref.current && ref.current.focus(), 100);
+  }, []);
+
   // const back = () => {
   //   // setState(state - 1);
   // };
@@ -37,13 +42,18 @@ export default function SlideModal({ propMap, updateCallback }: any) {
         <div>
           <div className="modal__title">{props.cta}</div>
           <div className="modal__block">
-            <input type="text" onChange={onChange}></input>
+            <input
+              type="text"
+              onChange={onChange}
+              autoFocus={true}
+              ref={ref}
+            ></input>
           </div>
         </div>
       </BiAnim>
       <div className="modal__button-container">
         {/* <Button name="Back" onClick={back} /> */}
-        <Button name="Ok" onClick={update} />
+        <Button name="Ok" size="s" onClick={update} />
       </div>
     </div>
   );

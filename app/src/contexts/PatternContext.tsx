@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer, useState } from "react";
 import { CanvasTexture } from "three";
 import {
   createCanvas,
@@ -58,6 +58,7 @@ const PatternProvider = ({
 export { PatternContext, PatternProvider };
 
 export const useUpdatePattern = () => {
+  const [updating, setUpdating] = useState(false);
   const context = useContext(PatternContext);
 
   if (context === undefined) {
@@ -72,7 +73,7 @@ export const useUpdatePattern = () => {
       return;
     }
     const file = files[0];
-
+    setUpdating(true);
     const reader = new FileReader();
     reader.onload = async (e: ProgressEvent<FileReader>) => {
       if (!e.target) {
@@ -88,13 +89,14 @@ export const useUpdatePattern = () => {
       createEggMask(eggMask, canvas, 200, 200);
       const pattern = createTexture(canvas, 7);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
+      setTimeout(() => setUpdating(false), 2000);
     };
     reader.readAsDataURL(file);
   };
 
   const clearPattern = () => dispatch({ type: "CLEAR_PATTERN" });
 
-  return { clearPattern, uploadPattern, pattern: state.pattern };
+  return { clearPattern, uploadPattern, pattern: state.pattern, updating };
 };
 
 export const usePattern = () => {

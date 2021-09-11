@@ -12,11 +12,12 @@ import { useEffect, useState } from "react";
 import EggMaker from "./EggMaker";
 import Login from "./Login";
 import Mint from "./Mint";
+import ChevronLeft from "../../components/icons/ChevronLeft";
 
 const modalMap = {
   info: { component: <Info />, maxState: 0 },
   cartonContent: { component: <CartonContent />, maxState: 0 },
-  eggMaker: { component: <EggMaker />, maxState: 2 },
+  eggMaker: { component: <EggMaker />, maxState: 1 },
   login: { component: <Login />, maxState: 1 },
   mint: {
     component: <Mint />,
@@ -27,7 +28,8 @@ const modalMap = {
 export default function Modal() {
   const open = useModalOpen();
   const [display, setDisplay] = useState(false);
-  const { toggleModal, onModalBack, setMaxModalState } = useModalToggle();
+  const { toggleModal, onModalBack, modalState, setMaxModalState } =
+    useModalToggle();
   const modalType = useModalType();
   const modal = modalType && modalMap[modalType];
 
@@ -57,9 +59,11 @@ export default function Modal() {
         onExited={() => setDisplay(false)}
       >
         <div className="modal__wrapper">
-          <button onClick={onModalBack} className="modal__back">
-            back
-          </button>
+          {modalState > 0 && (
+            <button onClick={onModalBack} className="modal__back">
+              <ChevronLeft />
+            </button>
+          )}
           <button onClick={toggleModal} className="modal__close">
             <CloseIcon />
           </button>

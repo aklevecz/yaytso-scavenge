@@ -1,81 +1,30 @@
-import { ethers } from "ethers";
-import { Fragment, useEffect, useRef } from "react";
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
-import Button from "../../components/Button";
+import { Fragment, useEffect, useRef, useState } from "react";
 import EggMask from "../../components/Mask/Egg";
 import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
+import { useCustomEgg, useUser } from "../../contexts/UserContext";
+import { EGGVG, EGG_MASK, ViewStates } from "./constants";
+import { exportYaytso } from "./services";
+import Button from "../../components/Button";
 import { ModalTypes } from "../../contexts/types";
-import { useCustomEgg, useLogin, useUser } from "../../contexts/UserContext";
-import "../../styles/egg.css";
-import { pinBlobs } from "./services";
-import { createBlobs, saveYaytso } from "./utils";
+import FloatingButtonContainer from "../../components/Button/FloatingButtonContainer";
+import { isMobile } from "../../utils";
+import LoadingButton from "../../components/Button/LoadingButton";
 
-const EGG_MASK = "egg-mask";
-const EGGVG = "eggvg";
+import "../../styles/egg.css";
+import Buttons from "./Buttons";
 
 export default function Egg() {
+  const [viewState, setViewState] = useState<ViewStates>(ViewStates.Blank);
   const sceneContainer = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { initScene, scene } = useThreeScene();
-  const { uploadPattern, pattern, clearPattern } = useUpdatePattern();
-  const customEgg = useCustomEgg();
+  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern();
+  const { customEgg, clearEgg } = useCustomEgg();
   const openModal = useOpenModal();
 
   const user = useUser();
-
-  const { logout } = useLogin();
-
-  const reset = () => {
-    clearPattern();
-    inputRef.current!.value = "";
-  };
-
-  const exportYaytso = async () => {
-    const exporter = new GLTFExporter();
-    if (!scene) {
-      return console.error("scene is missing");
-    }
-    if (customEgg.description === undefined) {
-      return console.error("please describe your egg");
-    }
-    if (customEgg.name === undefined) {
-      return console.error("please name your egg");
-    }
-    const { description, name } = customEgg;
-    exporter.parse(
-      scene,
-      async (sceneGLTF) => {
-        const eggVG = document.getElementById(EGGVG);
-        const data = createBlobs(sceneGLTF, eggVG, description, name);
-        const r = await pinBlobs(data);
-        if (r.success) {
-          var arr: any = [];
-          for (var p in Object.getOwnPropertyNames(r.byteArray)) {
-            arr[p] = r.byteArray[p];
-          }
-
-          const patternHash = ethers.utils.hexlify(arr);
-          const response = await saveYaytso(
-            user.uid,
-            name,
-            description,
-            patternHash,
-            r.metaCID,
-            r.svgCID,
-            r.gltfCID
-          );
-          if (response) {
-            console.log("sucess");
-          } else {
-            console.error("save failed");
-          }
-        }
-      },
-      { onlyVisible: true }
-    );
-  };
 
   useEffect(() => {
     if (!sceneContainer.current) {
@@ -86,32 +35,50 @@ export default function Egg() {
     return () => cleanup();
   }, [initScene]);
 
+  useEffect(() => {
+    if (pattern && customEgg.name && customEgg.description) {
+      return setViewState(ViewStates.Customized);
+    }
+    if (pattern) {
+      return setViewState(ViewStates.Pattern);
+    }
+    return setViewState(ViewStates.Blank);
+  }, [pattern, customEgg]);
+
+  const reset = () => {
+    clearPattern();
+    clearEgg();
+  };
+
+  const onExport = () => {
+    setViewState(ViewStates.Creating);
+    exportYaytso(scene, customEgg, user.uid, () =>
+      setViewState(ViewStates.Success)
+    );
+  };
+
   return (
     <div className="egg__container">
       <div className="canvas__container" ref={sceneContainer} />
-      <div style={{ position: "absolute", left: 100, top: 100 }}>
+      <div
+        className="egg__details"
+        style={{ position: "absolute", left: 50, top: 100 }}
+      >
         <div>{customEgg.name}</div>
         <div>{customEgg.description}</div>
         <div>{customEgg.recipient}</div>
       </div>
-      <div>
-        <label className="upload-label">
-          <input ref={inputRef} onChange={uploadPattern} type="file" />
-          Upload
-        </label>
-        {/* {pattern && ( */}
-        <Fragment>
-          <Button
-            name="Customize Egg"
-            size="lg"
-            onClick={() => openModal(ModalTypes.EggMaker)}
-          />
-          <Button name="Clear" onClick={reset} />
-          <Button name="Export" onClick={exportYaytso} />
-          <Button name="Login" onClick={() => openModal(ModalTypes.Login)} />
-          <Button name="Logout" onClick={logout} />
-        </Fragment>
-        {/* )} */}
+      <div style={{ textAlign: "center" }}>
+        <Buttons
+          user={user}
+          openModal={openModal}
+          viewState={viewState}
+          inputRef={inputRef}
+          reset={reset}
+          onExport={onExport}
+          uploadPattern={uploadPattern}
+          updating={updating}
+        />
       </div>
       <EggMask visible={false} svgId={EGGVG} imgId={EGG_MASK} />
     </div>

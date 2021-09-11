@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useReducer } from "react";
 import firebase from "firebase";
 import { auth, db, YAYTSOS } from "../firebase";
+import { Egg } from "./types";
 
 type EggParams = {
   name?: string;
@@ -14,12 +15,6 @@ type Action =
   | { type: "LOGOUT" };
 
 type Dispatch = (action: Action) => void;
-
-type Egg = {
-  name: string | undefined;
-  description: string | undefined;
-  recipient: string | undefined;
-};
 
 type User = {
   phone: string;
@@ -110,8 +105,11 @@ export const useCustomEgg = () => {
     throw new Error("User Context error in CustomEgg hook");
   }
 
+  const clearEgg = () =>
+    dispatch({ type: "UPDATE_EGG", params: { name: "", description: "" } });
+
   const { dispatch, state } = context;
-  return state.egg;
+  return { customEgg: state.egg, clearEgg };
 };
 
 export const useUser = () => {

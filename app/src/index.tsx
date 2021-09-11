@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom";
 import "./index.css";
+import "./styles/buttons.css";
 import "./styles/transitions.css";
 import "./styles/modal.css";
 import "./styles/overlay.css";
@@ -11,13 +12,19 @@ import { MapProvider } from "./contexts/MapContext";
 import { ModalProvider } from "./contexts/ModalContext";
 import { CartonProvider } from "./contexts/CartonContext";
 import { UserProvider } from "./contexts/UserContext";
+import { ContractProvider } from "./contexts/ContractContext";
+import { WalletProvider } from "./contexts/WalletContext";
 
 ReactDOM.render(
   <ModalProvider>
     <CartonProvider>
       <MapProvider>
         <UserProvider>
-          <App />
+          <ContractProvider>
+            <WalletProvider>
+              <App />
+            </WalletProvider>
+          </ContractProvider>
         </UserProvider>
       </MapProvider>
     </CartonProvider>

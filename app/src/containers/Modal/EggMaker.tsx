@@ -10,7 +10,7 @@ type ModalProps = {
 const eggMakerMap: { [key: number]: ModalProps } = {
   0: { param: "name", cta: "Name your egg", value: "" },
   1: { param: "description", cta: "Describe your egg", value: "" },
-  2: { param: "recipient", cta: "Who are you sending it to?", value: "" },
+  // 2: { param: "recipient", cta: "Who are you sending it to?", value: "" },
 };
 
 export default function EggMaker() {

@@ -149,10 +149,9 @@ export const useThreeScene = () => {
 
   const { dispatch, state } = context;
 
+  // TODO: this should be in a hook for the particular thing it needs to pattern
+  // I guess in the context of this app it doesnt matter, because the upload function only does one thing
   useEffect(() => {
-    if (!pattern) {
-      return;
-    }
     const object = state.entities.find(
       (entity: Entity) => entity.name === "egg"
     );
@@ -172,11 +171,11 @@ export const useThreeScene = () => {
 
   const initScene = useCallback(
     (container: HTMLDivElement) => {
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
       const { width, height } = container.getBoundingClientRect();
       const windowAspect = width / height;
-      renderer.setSize(width, height);
-      renderer.setClearColor(0xffffff);
+      renderer.setSize(width * 0.8, height * 0.8);
+      renderer.setClearColor(0xffffff, 0);
       renderer.setPixelRatio(window.devicePixelRatio);
       // renderer.physicallyCorrectLights = true;
       renderer.outputEncoding = THREE.sRGBEncoding;

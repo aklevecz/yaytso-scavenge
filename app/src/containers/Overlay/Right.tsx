@@ -5,16 +5,13 @@ import Triangulate from "../../components/icons/Triangulate";
 export default function Right() {
   const { getUserLocation, createUserMarker, userLocation, recenter } =
     useUserLocation();
-  const { loading } = useMap();
+  const { loading, map } = useMap();
 
-  // NOTE: This is not where this should be dumbass
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-    const interval = setInterval(getUserLocation, 2000);
-    return () => clearInterval(interval);
-  }, [loading, getUserLocation]);
+  // useEffect(() => {
+  //   if (map) {
+  //     getUserLocation();
+  //   }
+  // }, [map]);
   return (
     <div className="overlay__right">
       <div style={{ marginRight: 10 }}>

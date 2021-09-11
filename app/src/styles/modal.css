@@ -32,12 +32,15 @@
 }
 
 .modal__back {
+  border: none;
   position: absolute;
   left: 0;
   top: 0;
   margin: 16px;
   background: none;
   font-size: 22px;
+  width: 40px;
+  height: 35px;
 }
 
 .modal__close {
@@ -136,7 +139,7 @@
 }
 
 .modal__block div {
-  margin-top: 10px;
+  /* margin-top: 10px; */
 }
 
 .modal__block__title {
@@ -153,6 +156,10 @@
   width: 100%;
 }
 
+.modal__input-container {
+  margin: 20px 0px;
+}
+
 .modal__next-image {
   position: absolute;
   right: 10px;
@@ -164,6 +171,7 @@
 }
 
 .modal__button-container {
+  margin-top: 10px;
   padding: 10px;
   display: flex;
   justify-content: space-around;
@@ -183,6 +191,10 @@
 .yaytso-view {
   transform: scale(0);
   /* animation: in 500ms forwards; */
+}
+
+.PhoneInputInput {
+  font-size: 1.3rem;
 }
 
 @keyframes in {
