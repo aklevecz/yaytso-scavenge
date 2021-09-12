@@ -34,7 +34,7 @@ enum Step {
 export default function Mint() {
   const { modalState } = useModalToggle();
   const open = useModalOpen();
-  const { layYaytso, txState, reset } = useYaytsoContract();
+  const { layYaytso, txState, reset, checkYaytsoDupe } = useYaytsoContract();
   const { data } = useModalData();
   const [step, setStep] = useState(Step.Confirmation);
 
@@ -54,6 +54,12 @@ export default function Mint() {
   }, [open]);
 
   const { id } = data;
+
+  useEffect(() => {
+    console.log(id);
+    checkYaytsoDupe(id);
+  }, [id]);
+
   const lay = () => layYaytso(id);
   return (
     <div>

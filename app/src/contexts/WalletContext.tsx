@@ -151,11 +151,19 @@ const WalletProvider = ({
       let yaytsoCIDS: YaytsoCID[] = [];
       let yaytsoMeta: YaytsoMeta[] = [];
       snapshot.forEach((data) => {
-        const { metaCID, svgCID, gltfCID, name, description, patternHash, nft } =
-          data.data();
+        const {
+          metaCID,
+          svgCID,
+          gltfCID,
+          name,
+          description,
+          patternHash,
+          nft,
+        } = data.data();
         yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
         yaytsoMeta.push({ name, description, patternHash, image: "", nft });
-      });      dispatch({ type: "SET_META", yaytsoMeta });
+      });
+      dispatch({ type: "SET_META", yaytsoMeta });
 
       dispatch({ type: "SET_CIDS", yaytsoCIDS });
     });
@@ -197,7 +205,7 @@ export const useCreateWallet = () => {
 export const useYaytsoSVGs = () => {
   const [fetching, setFetching] = useState(true);
   // REFACTOR
-  const [svgToNFT, setSvgToNFT] = useState<boolean[]>([])
+  const [svgToNFT, setSvgToNFT] = useState<boolean[]>([]);
   const context = useContext(WalletContext);
   if (context === undefined) {
     throw new Error("Wallet Context error in YaytsoSVGs hook");
@@ -212,17 +220,16 @@ export const useYaytsoSVGs = () => {
   }, []);
 
   useEffect(() => {
-    const svgMap:boolean[] = []
+    const svgMap: boolean[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
-
-      console.log(state)
-      svgMap.push(state.yaytsoMeta[i].nft)
+      console.log(state);
+      svgMap.push(state.yaytsoMeta[i].nft);
       return fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then((r) => r.text());
     });
     Promise.all(svgPromises).then((svgs) => {
       setFetching(false);
       dispatch({ type: "SET_SVGs", yaytsoSVGs: svgs });
-      setSvgToNFT(svgMap)
+      setSvgToNFT(svgMap);
     });
   }, [yaytsoCIDS]);
   return { svgs: state.yaytsoSVGs, fetching, svgToNFT };
@@ -261,6 +268,8 @@ export const useMetaMask = () => {
           }
         })
         .catch(console.log);
+    } else {
+      alert("I don't need a MetaMask extension present");
     }
   };
 

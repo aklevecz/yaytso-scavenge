@@ -17,14 +17,14 @@ const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const YAYTSO_MAIN_ADDRESS = "0x155b65c62e2bf8214d1e3f60854df761b9aa92b3";
 const CARTON_MAIN_ADDRESS = "0x7c05cf1a1608eE23652014FB12Cb614F3325CFB5";
 
-const YAYTSO_RINKEBY_ADDRESS = "0x035B3160bD0bB48518602BbDA76Db70B05621D79";
+const YAYTSO_RINKEBY_ADDRESS = "0x0991B3dF0C16F32C75157726d7Eb0852FDf1930A";
 const CARTON_RINKEBY_ADDRESS = "0x8b401BEe910bd2B810715Ca459434A884C266324";
 
 const NETWORK =
-  process.env.NODE_ENV === "development" ? "hardhat" : "homestead";
+  process.env.NODE_ENV === "development" ? "rinkeby" : "homestead";
 
 const YAYTSO_ADDRESS =
-  NETWORK === "hardhat" ? YAYTSO_RINKEBY_ADDRESS : YAYTSO_MAIN_ADDRESS;
+  NETWORK === "rinkeby" ? YAYTSO_RINKEBY_ADDRESS : YAYTSO_MAIN_ADDRESS;
 
 const contractMap: { [key: string]: { interface: any; address: string } } = {
   yaytso: { interface: YaytsoInterface, address: YAYTSO_ADDRESS },
@@ -44,9 +44,10 @@ type State = {
   cartonContract: ethers.Contract | undefined;
   provider: ethers.providers.BaseProvider;
 };
-
+console.log(NETWORK);
 const provider =
-  process.env.NODE_ENV === "development"
+  // process.env.NODE_ENV === "development"
+  false
     ? new ethers.providers.JsonRpcProvider()
     : ethers.providers.getDefaultProvider(NETWORK, {
         infura: process.env.REACT_APP_INFURA_KEY,
@@ -156,6 +157,7 @@ export const useYaytsoContract = () => {
       getYaytsoURI: () => {},
       layYaytso: () => {},
       reset: () => {},
+      checkYaytsoDupe: () => {},
     };
   } else {
   }
@@ -163,6 +165,17 @@ export const useYaytsoContract = () => {
   const getYaytsoURI = async (yaytsoId: number) => {
     const meta = await yaytsoContract.tokenURI(yaytsoId);
     return meta;
+  };
+
+  const checkYaytsoDupe = async (yaytsoId: number) => {
+    const patternHash = wallet.yaytsoMeta[yaytsoId].patternHash;
+    const isDupe = await yaytsoContract
+      .checkDupe(patternHash)
+      .catch(console.log);
+    if (isDupe) {
+      console.log("is dupe");
+    }
+    console.log(isDupe);
   };
 
   const layYaytso = async (index: number) => {
@@ -180,11 +193,12 @@ export const useYaytsoContract = () => {
 
     setTxState(TxStates.Minting);
     const receipt = await tx.wait();
+    console.log(receipt);
     for (const event of receipt.events) {
       if (event.event === "YaytsoLaid") {
         setTxState(TxStates.Completed);
-        console.log("will update")
-        updateYaytso(metaCID, {nft:true})
+        console.log("will update");
+        updateYaytso(metaCID, { nft: true });
       } else {
         setTxState(TxStates.Failed);
       }
@@ -196,6 +210,7 @@ export const useYaytsoContract = () => {
   return {
     contract: state.yaytsoContract,
     getYaytsoURI,
+    checkYaytsoDupe,
     layYaytso,
     txState,
     reset,

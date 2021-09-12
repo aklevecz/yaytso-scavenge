@@ -38,8 +38,20 @@ export default function Eggs({ wallet }: Props) {
           return (
             <div key={`yaytso${i}`} className="wallet__egg-wrapper">
               <div dangerouslySetInnerHTML={{ __html: svg }} />
-              {wallet.eth && !svgToNFT[i] &&  (
+              {wallet.eth && !svgToNFT[i] ? (
                 <Button name="Mint" onClick={onClick} width="50%" size="flex" />
+              ) : (
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "1.5rem",
+                    background: "black",
+                    color: "white",
+                    margin: "20px 70px",
+                  }}
+                >
+                  NFT
+                </div>
               )}
             </div>
           );
