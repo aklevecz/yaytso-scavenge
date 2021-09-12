@@ -40,6 +40,7 @@ export type YaytsoMeta = {
   description: string;
   patternHash: string;
   image: string;
+  nft: boolean
 };
 
 export type YaytsoCID = {

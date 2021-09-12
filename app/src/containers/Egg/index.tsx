@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EggMask from "../../components/Mask/Egg";
 import { useOpenModal } from "../../contexts/ModalContext";
 import { useUpdatePattern } from "../../contexts/PatternContext";
@@ -6,11 +6,6 @@ import { useThreeScene } from "../../contexts/ThreeContext";
 import { useCustomEgg, useUser } from "../../contexts/UserContext";
 import { EGGVG, EGG_MASK, ViewStates } from "./constants";
 import { exportYaytso } from "./services";
-import Button from "../../components/Button";
-import { ModalTypes } from "../../contexts/types";
-import FloatingButtonContainer from "../../components/Button/FloatingButtonContainer";
-import { isMobile } from "../../utils";
-import LoadingButton from "../../components/Button/LoadingButton";
 
 import "../../styles/egg.css";
 import Buttons from "./Buttons";

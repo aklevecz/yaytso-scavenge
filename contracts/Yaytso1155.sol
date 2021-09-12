@@ -4,7 +4,7 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Yaytso is ERC1155 {
+contract Yaytso2 is ERC1155 {
     uint256 public constant GOLD = 0;
     uint256 public constant SILVER = 1;
     uint256 public constant THORS_HAMMER = 2;

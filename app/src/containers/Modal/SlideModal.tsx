@@ -45,6 +45,11 @@ export default function SlideModal({ propMap, updateCallback }: any) {
             <input
               type="text"
               onChange={onChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  update()
+                }
+              }}
               autoFocus={true}
               ref={ref}
             ></input>

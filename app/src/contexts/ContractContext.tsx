@@ -10,13 +10,14 @@ import { ethers } from "ethers";
 import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
 import { useWallet } from "./WalletContext";
+import { updateYaytso } from "./services";
 
 const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const YAYTSO_MAIN_ADDRESS = "0x155b65c62e2bf8214d1e3f60854df761b9aa92b3";
 const CARTON_MAIN_ADDRESS = "0x7c05cf1a1608eE23652014FB12Cb614F3325CFB5";
 
-const YAYTSO_RINKEBY_ADDRESS = "0xC9D478fbb72c7F4Cb16eAb4b8bEF2F09776A45C2";
+const YAYTSO_RINKEBY_ADDRESS = "0x035B3160bD0bB48518602BbDA76Db70B05621D79";
 const CARTON_RINKEBY_ADDRESS = "0x8b401BEe910bd2B810715Ca459434A884C266324";
 
 const NETWORK =
@@ -138,7 +139,7 @@ export enum TxStates {
 export const useYaytsoContract = () => {
   const [txState, setTxState] = useState<TxStates>(TxStates.Idle);
   const context = useContext(ContractContext);
-  const wallet = useWallet();
+  const { wallet } = useWallet();
   if (context === undefined) {
     throw new Error("Carton Context error in Cartons hook");
   }
@@ -148,8 +149,14 @@ export const useYaytsoContract = () => {
   const { yaytsoContract } = state;
   const { address, signer } = wallet;
 
+  // REFACTOR
   if (!yaytsoContract || !wallet || !signer) {
-    return { contract: null, getYaytsoURI: () => {}, layYaytso: () => {} };
+    return {
+      contract: null,
+      getYaytsoURI: () => {},
+      layYaytso: () => {},
+      reset: () => {},
+    };
   } else {
   }
 
@@ -168,21 +175,29 @@ export const useYaytsoContract = () => {
       .layYaytso(address, patternHash, metaCID)
       .catch((e: any) => ({ error: true, message: e }));
     if (tx.error) {
-      alert("no dupes");
       return console.error(tx.message);
     }
 
     setTxState(TxStates.Minting);
     const receipt = await tx.wait();
-    console.log(receipt);
     for (const event of receipt.events) {
       if (event.event === "YaytsoLaid") {
         setTxState(TxStates.Completed);
+        console.log("will update")
+        updateYaytso(metaCID, {nft:true})
       } else {
         setTxState(TxStates.Failed);
       }
     }
   };
 
-  return { contract: state.yaytsoContract, getYaytsoURI, layYaytso, txState };
+  const reset = () => setTxState(TxStates.Idle);
+
+  return {
+    contract: state.yaytsoContract,
+    getYaytsoURI,
+    layYaytso,
+    txState,
+    reset,
+  };
 };

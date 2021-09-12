@@ -8,41 +8,43 @@ type Props = {
   wallet: WalletState;
 };
 
+const NoEggs = () => <div>no eggs</div>;
+
 export default function Eggs({ wallet }: Props) {
   const [ready, setReady] = useState(false);
-  const { svgs } = useYaytsoSVGs();
+  const { svgs, fetching, svgToNFT } = useYaytsoSVGs();
   const openModal = useOpenModal();
 
   useEffect(() => {
-    if (svgs.length > 0) {
+    if (!fetching) {
       setTimeout(() => setReady(true), 2000);
     }
-  }, [svgs]);
+  }, [fetching]);
+
+  if (fetching || !ready) {
+    return (
+      <div className="loading-dot__container">
+        <div className="dot-typing-inverse"></div>
+      </div>
+    );
+  }
+
   return (
     <Fragment>
-      {!ready && (
-        <div className="loading-dot__container">
-          <div className="dot-typing-inverse"></div>
-        </div>
-      )}
+      <div className="wallet__title">yaytsos</div>
       <div className="wallet__egg-container">
-        {ready &&
-          svgs.map((svg, i) => {
-            const onClick = () => openModal(ModalTypes.Mint, { id: i });
-            return (
-              <div key={`yaytso${i}`} className="wallet__egg-wrapper">
-                <div dangerouslySetInnerHTML={{ __html: svg }} />
-                {wallet.eth && (
-                  <Button
-                    name="Mint"
-                    onClick={onClick}
-                    width="50%"
-                    size="flex"
-                  />
-                )}
-              </div>
-            );
-          })}
+        {svgs.map((svg, i) => {
+          const onClick = () => openModal(ModalTypes.Mint, { id: i });
+          return (
+            <div key={`yaytso${i}`} className="wallet__egg-wrapper">
+              <div dangerouslySetInnerHTML={{ __html: svg }} />
+              {wallet.eth && !svgToNFT[i] &&  (
+                <Button name="Mint" onClick={onClick} width="50%" size="flex" />
+              )}
+            </div>
+          );
+        })}
+        {svgs.length === 0 && <NoEggs />}
       </div>
     </Fragment>
   );

@@ -20,12 +20,19 @@
   word-break: break-all;
   margin: 0px 25px;
   letter-spacing: 4.1px;
-  overflow: hidden;
   flex: 0 0 30%;
 }
 
 .wallet__phone {
   font-size: 1.3rem;
+}
+
+.wallet__connect-container div {
+  margin-top: 20px;
+}
+
+.wallet__connect-container div:first-of-type {
+  margin-top: 0px;
 }
 
 .wallet__egg-container {
@@ -39,6 +46,14 @@
   padding: 10px;
   box-sizing: border-box;
   text-align: center;
+}
+
+.wallet__title {
+  font-weight: bold;
+  letter-spacing: 5px;
+  text-align: center;
+  font-size: 1.5rem;
+  /* flex: 1 0 100%; */
 }
 
 .wallet__egg-wrapper {

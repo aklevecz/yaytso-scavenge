@@ -1,6 +1,7 @@
 button.btn {
   font-size: 1.3rem;
-  background: white;
+  background: black;
+  color: white;
   border-radius: 30px;
   border: 1px solid black;
   width: 130px;

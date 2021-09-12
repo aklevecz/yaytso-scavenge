@@ -8,21 +8,12 @@ import {
   useState,
 } from "react";
 import { IPFS_URL } from "../constants";
-import { db, YAYTSOS } from "../firebase";
-import {
-  Eth,
-  WalletConnectState,
-  WalletState,
-  WalletTypes,
-  YaytsoCID,
-  YaytsoMeta,
-} from "./types";
+import { Eth, WalletState, WalletTypes, YaytsoCID, YaytsoMeta } from "./types";
 import { useUser } from "./UserContext";
 import { Web3WindowApi } from "./Web3WindowApi";
-
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+
+import { fetchUserYaytsos } from "./services";
 
 declare global {
   interface Window {
@@ -74,6 +65,7 @@ const WalletContext = createContext<
       dispatch: Dispatch;
       initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
       disconnect(): void;
+      updateYaytsos: () => void;
     }
   | undefined
 >(undefined);
@@ -104,7 +96,15 @@ const reducer = (state: State, action: Action) => {
     case "SET_SVGs":
       return { ...state, yaytsoSVGs: action.yaytsoSVGs };
     case "DISCONNECT":
-      return initialState;
+      return {
+        ...state,
+        eth: undefined,
+        connected: false,
+        provider: undefined,
+        signer: undefined,
+        address: "",
+        chainId: undefined,
+      };
     default:
       return state;
   }
@@ -134,7 +134,9 @@ const WalletProvider = ({
       walletType,
     });
 
-  const disconnect = () => dispatch({ type: "DISCONNECT" });
+  const disconnect = () => {
+    dispatch({ type: "DISCONNECT" });
+  };
 
   useEffect(() => {
     const wallet = localStorage.getItem("wallet");
@@ -144,27 +146,26 @@ const WalletProvider = ({
     }
   }, []);
 
+  const updateYaytsos = () =>
+    fetchUserYaytsos(user.uid).then((snapshot) => {
+      let yaytsoCIDS: YaytsoCID[] = [];
+      let yaytsoMeta: YaytsoMeta[] = [];
+      snapshot.forEach((data) => {
+        const { metaCID, svgCID, gltfCID, name, description, patternHash, nft } =
+          data.data();
+        yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
+        yaytsoMeta.push({ name, description, patternHash, image: "", nft });
+      });      dispatch({ type: "SET_META", yaytsoMeta });
+
+      dispatch({ type: "SET_CIDS", yaytsoCIDS });
+    });
+
   useEffect(() => {
-    console.log(user);
     if (user) {
-      db.collection(YAYTSOS)
-        .where("uid", "==", user.uid)
-        .get()
-        .then((snapshot) => {
-          let yaytsoCIDS: YaytsoCID[] = [];
-          let yaytsoMeta: YaytsoMeta[] = [];
-          snapshot.forEach((data) => {
-            const { metaCID, svgCID, gltfCID, name, description, patternHash } =
-              data.data();
-            yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
-            yaytsoMeta.push({ name, description, patternHash, image: "" });
-          });
-          dispatch({ type: "SET_CIDS", yaytsoCIDS });
-          dispatch({ type: "SET_META", yaytsoMeta });
-        });
+      updateYaytsos();
     }
   }, [user]);
-  const value = { state, dispatch, initWallet, disconnect };
+  const value = { state, dispatch, initWallet, disconnect, updateYaytsos };
   return (
     <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
   );
@@ -178,8 +179,8 @@ export const useWallet = () => {
     throw new Error("Wallet Context error in Wallet hook");
   }
 
-  const { dispatch, state } = context;
-  return state;
+  const { disconnect, state } = context;
+  return { wallet: state, disconnect };
 };
 
 export const useCreateWallet = () => {
@@ -194,24 +195,37 @@ export const useCreateWallet = () => {
 };
 
 export const useYaytsoSVGs = () => {
+  const [fetching, setFetching] = useState(true);
+  // REFACTOR
+  const [svgToNFT, setSvgToNFT] = useState<boolean[]>([])
   const context = useContext(WalletContext);
   if (context === undefined) {
     throw new Error("Wallet Context error in YaytsoSVGs hook");
   }
 
-  const { dispatch, state } = context;
+  const { dispatch, state, updateYaytsos } = context;
 
   const { yaytsoCIDS } = state;
 
   useEffect(() => {
-    const svgPromises = yaytsoCIDS.map((yaytsoCID) => {
+    updateYaytsos();
+  }, []);
+
+  useEffect(() => {
+    const svgMap:boolean[] = []
+    const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
+
+      console.log(state)
+      svgMap.push(state.yaytsoMeta[i].nft)
       return fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then((r) => r.text());
     });
     Promise.all(svgPromises).then((svgs) => {
+      setFetching(false);
       dispatch({ type: "SET_SVGs", yaytsoSVGs: svgs });
+      setSvgToNFT(svgMap)
     });
   }, [yaytsoCIDS]);
-  return { svgs: state.yaytsoSVGs };
+  return { svgs: state.yaytsoSVGs, fetching, svgToNFT };
 };
 
 export const useMetaMask = () => {
@@ -301,6 +315,13 @@ export const useWalletConnect = () => {
       startProvider();
     }
   }, [walletConnectProvider, startProvider]);
+
+  useEffect(() => {
+    console.log(state.connected, walletConnectProvider.connected);
+    if (!state.connected && walletConnectProvider.connected) {
+      walletConnectProvider.disconnect();
+    }
+  }, [state.connected]);
 
   return { startProvider };
 };

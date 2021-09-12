@@ -7,6 +7,7 @@ type Props = {
   size?: Sizes;
   id?: string;
   width?: number | string;
+  margin?: number | string;
 };
 
 export default function Button({
@@ -16,13 +17,14 @@ export default function Button({
   size,
   id,
   width,
+  margin,
 }: Props) {
   return (
     <button
       id={id}
       className={`btn ${className} ${size}`}
       onClick={onClick}
-      style={{ width }}
+      style={{ margin, width }}
     >
       {name}
     </button>

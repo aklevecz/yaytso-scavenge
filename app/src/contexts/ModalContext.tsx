@@ -49,7 +49,11 @@ const reducer = (state: State, action: Action) => {
     case "CLOSE_MODAL":
       return { ...state, open: false };
     case "TOGGLE_MODAL":
-      return { ...state, open: !state.open };
+      return {
+        ...state,
+        open: !state.open,
+        modalState: !state.open ? 0 : state.modalState,
+      };
     case "CLEAR_DATA":
       return { ...state, data: undefined };
     case "SET_MODAL_STATE":
@@ -109,7 +113,6 @@ export const useModalToggle = () => {
 
   const onModalNext = () => {
     const newState = modalState + 1;
-    console.log(state.maxState);
     if (newState > state.maxState) return;
     dispatch({ type: "SET_MODAL_STATE", modalState: newState });
   };
@@ -119,6 +122,8 @@ export const useModalToggle = () => {
     [dispatch]
   );
 
+  const reset = () => dispatch({ type: "SET_MODAL_STATE", modalState: 0 });
+
   return {
     toggleModal,
     onModalBack,
@@ -126,6 +131,7 @@ export const useModalToggle = () => {
     maxState,
     modalState,
     setMaxModalState,
+    reset,
   };
 };
 

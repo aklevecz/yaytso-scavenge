@@ -38,7 +38,7 @@ export const saveYaytso = async (
   return db
     .collection(YAYTSOS)
     .doc(metaCID)
-    .set({ uid, name, description, patternHash, metaCID, svgCID, gltfCID })
+    .set({ uid, name, description, patternHash, metaCID, svgCID, gltfCID, nft:false })
     .then(() => true)
     .catch(() => false);
 };
