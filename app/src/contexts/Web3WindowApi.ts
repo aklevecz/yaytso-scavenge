@@ -38,11 +38,16 @@ export class Web3WindowApi {
     });
   }
 
+  // REFACTOR
   onAccountChange(action: any, fail: any) {
     this.ethereum.on("accountsChanged", (accounts: any) => {
+      console.log("account change", accounts)
       try {
-        action();
+        // action();
+        console.log("reload")
+        window.location.reload()
       } catch (e) {
+        console.log(e)
         fail();
       }
     });

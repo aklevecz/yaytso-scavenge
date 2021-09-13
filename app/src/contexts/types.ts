@@ -7,6 +7,7 @@ export enum ModalTypes {
   EggMaker = "eggMaker",
   Login = "login",
   Mint = "mint",
+  ExportReceipt = "exportReceipt",
 }
 
 export type Position = {
@@ -40,7 +41,7 @@ export type YaytsoMeta = {
   description: string;
   patternHash: string;
   image: string;
-  nft: boolean
+  nft: boolean;
 };
 
 export type YaytsoCID = {

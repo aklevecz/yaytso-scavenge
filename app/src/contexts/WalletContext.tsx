@@ -23,13 +23,13 @@ declare global {
 
 type Action =
   | {
-      type: "INIT_WALLET";
-      provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
-      signer: ethers.Signer;
-      address: string;
-      chainId: number;
-      walletType: WalletTypes;
-    }
+    type: "INIT_WALLET";
+    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+    signer: ethers.Signer;
+    address: string;
+    chainId: number;
+    walletType: WalletTypes;
+  }
   | { type: "DISCONNECT" }
   // | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
@@ -61,12 +61,12 @@ const initialState = {
 
 const WalletContext = createContext<
   | {
-      state: State;
-      dispatch: Dispatch;
-      initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
-      disconnect(): void;
-      updateYaytsos: () => void;
-    }
+    state: State;
+    dispatch: Dispatch;
+    initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
+    disconnect(): void;
+    updateYaytsos: () => void;
+  }
   | undefined
 >(undefined);
 
@@ -222,7 +222,6 @@ export const useYaytsoSVGs = () => {
   useEffect(() => {
     const svgMap: boolean[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
-      console.log(state);
       svgMap.push(state.yaytsoMeta[i].nft);
       return fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then((r) => r.text());
     });
@@ -248,6 +247,8 @@ export const useMetaMask = () => {
     const { address, chainId } = await web3.requestAccount().catch(console.log);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
+    web3.onNetworkChange(initWallet);
+    web3.onAccountChange(initWallet, disconnect);
     initWallet({
       signer,
       address,
@@ -263,8 +264,8 @@ export const useMetaMask = () => {
       web3WindowConnect()
         .then((web3) => {
           if (web3.isAvailable) {
-            web3.onNetworkChange(initWallet);
-            web3.onAccountChange(initWallet, disconnect);
+            // web3.onNetworkChange(initWallet);
+            // web3.onAccountChange(initWallet, disconnect);
           }
         })
         .catch(console.log);
@@ -272,6 +273,17 @@ export const useMetaMask = () => {
       alert("I don't need a MetaMask extension present");
     }
   };
+
+  useEffect(() => {
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      provider.listAccounts().then(accounts => {
+        if (accounts.length > 0) {
+          web3WindowConnect()
+        }
+      })
+    }
+  }, [])
 
   return { metamaskConnect, isConnected: state.connected };
 };

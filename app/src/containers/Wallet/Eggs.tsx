@@ -31,7 +31,7 @@ export default function Eggs({ wallet }: Props) {
 
   return (
     <Fragment>
-      <div className="wallet__title">yaytsos</div>
+      <div className="wallet__title">YAYTSOS</div>
       <div className="wallet__egg-container">
         {svgs.map((svg, i) => {
           const onClick = () => openModal(ModalTypes.Mint, { id: i });
@@ -42,13 +42,7 @@ export default function Eggs({ wallet }: Props) {
                 <Button name="Mint" onClick={onClick} width="50%" size="flex" />
               ) : (
                 <div
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: "1.5rem",
-                    background: "black",
-                    color: "white",
-                    margin: "20px 70px",
-                  }}
+                  className="wallet__nft-tag"
                 >
                   NFT
                 </div>

@@ -25,7 +25,7 @@ type PhoneProps = {
 const PhoneNumber = ({ phone, setPhone, submitPhone, loading }: PhoneProps) => {
   return (
     <div>
-      <div>
+      <div className="modal__input-container">
         <PhoneInput
           className="phone-input"
           placeholder="Enter phone number"

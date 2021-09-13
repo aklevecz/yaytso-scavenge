@@ -10,6 +10,7 @@ type EggParams = {
 };
 
 type Action =
+  | { type: "SET_LOADING"; loading: boolean }
   | { type: "UPDATE_EGG"; params: EggParams }
   | { type: "LOGIN"; user: User }
   | { type: "LOGOUT" };
@@ -25,11 +26,13 @@ type User = {
 type State = {
   egg: Egg;
   user: User;
+  loading: boolean;
 };
 
 const initialState = {
   egg: { name: "", description: "", recipient: "" },
   user: { phone: "", uid: "", refreshToken: "" },
+  loading: true,
 };
 
 const UserContext = createContext<
@@ -39,6 +42,8 @@ const UserContext = createContext<
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
+    case "SET_LOADING":
+      return { ...state, loading: action.loading }
     case "UPDATE_EGG":
       return { ...state, egg: { ...state.egg, ...action.params } };
     case "LOGIN":
@@ -71,9 +76,12 @@ const UserProvider = ({
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (!user) {
-        return;
+        console.log("not authed")
+      } else {
+
+        login(user);
       }
-      login(user);
+      dispatch({ type: "SET_LOADING", loading: false })
     });
   }, []);
 
@@ -138,3 +146,15 @@ export const useLogin = () => {
   };
   return { login, logout };
 };
+
+export const useLoading = () => {
+  const context = useContext(UserContext);
+
+  if (context === undefined) {
+    throw new Error("User Context error in useLogin hook");
+  }
+
+  const { state, dispatch } = context;
+
+  return state.loading
+}

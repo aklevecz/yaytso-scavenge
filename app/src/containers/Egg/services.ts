@@ -19,7 +19,12 @@ export const exportYaytso = async (
   scene: Scene | undefined,
   customEgg: Egg,
   userId: string,
-  successCallBack: () => void
+  successCallBack: (
+    metaCID: string,
+    svgCID: string,
+    gltfCID: string,
+    svgBlob: any
+  ) => void
 ) => {
   const exporter = new GLTFExporter();
   if (!scene) {
@@ -36,14 +41,14 @@ export const exportYaytso = async (
     scene,
     async (sceneGLTF) => {
       const eggVG = document.getElementById(EGGVG);
-      const data = createBlobs(sceneGLTF, eggVG, description, name);
+      const data: any = createBlobs(sceneGLTF, eggVG, description, name);
       const r = await pinBlobs(data);
       if (r.success) {
         var arr: any = [];
         for (var p in Object.getOwnPropertyNames(r.byteArray)) {
           arr[p] = r.byteArray[p];
         }
-
+        const svgUrl = URL.createObjectURL(data.get("svg"));
         const patternHash = ethers.utils.hexlify(arr);
         const response = await saveYaytso(
           userId,
@@ -55,7 +60,7 @@ export const exportYaytso = async (
           r.gltfCID
         );
         if (response) {
-          successCallBack();
+          successCallBack(r.metaCID, r.svgCID, r.gltfCID, svgUrl);
         } else {
           console.error("save failed");
         }

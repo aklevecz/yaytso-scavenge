@@ -14,13 +14,16 @@
   justify-content: space-evenly;
   align-items: center;
   margin: 20px 0px;
+  border-bottom: 1px solid;
+  padding-bottom: 20px;
 }
 
 .wallet__address {
   word-break: break-all;
   margin: 0px 25px;
   letter-spacing: 4.1px;
-  flex: 0 0 30%;
+  flex: 0 0 33%;
+  max-width: 150px;
 }
 
 .wallet__phone {
@@ -39,10 +42,12 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  overflow: auto;
+  padding-bottom: 10%; /* REFACTOR */
 }
 
 .wallet__egg-container div {
-  flex: 0 0 50%;
+  flex: 0 0 80%;
   padding: 10px;
   box-sizing: border-box;
   text-align: center;
@@ -54,12 +59,20 @@
   letter-spacing: 5px;
   text-align: center;
   font-size: 1.5rem;
-  /* flex: 1 0 100%; */
+  padding: 20px;
 }
 
 .wallet__egg-wrapper {
-  /* display: grid;
-  grid-template-rows: 80% 20%; */
+  position: relative;
+}
+
+.wallet__nft-tag {
+  font-weight: bold;
+  font-size: 2rem;
+  color: black;
+  position: absolute;
+  top: 20%;
+  left: 5%;
 }
 
 .loading-dot__container {

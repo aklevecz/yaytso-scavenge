@@ -27,7 +27,7 @@ export default function Wallet() {
                 wallet.eth.walletType === WalletTypes.WalletConnect && (
                   <Button
                     size="xs"
-                    width="90%"
+                    width="100%"
                     margin="10px 0"
                     name="Disconnect"
                     onClick={disconnect}

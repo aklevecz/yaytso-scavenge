@@ -10,7 +10,7 @@ export default function Map() {
   }, [initMap]);
   return (
     <>
-      <div style={{ width: "100%", height: "100%" }} ref={mapContainer}></div>
+      <div style={{ width: "100%", height: "96%" }} ref={mapContainer}></div>
       {loading && <div>loading...</div>}
       <Overlay />
     </>

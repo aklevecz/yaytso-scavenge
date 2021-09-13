@@ -19,20 +19,20 @@ type Entity = {
 
 type Action =
   | {
-      type: "INIT";
-      renderer: THREE.WebGLRenderer;
-      scene: THREE.Scene;
-      camera: THREE.PerspectiveCamera;
-      domElement: HTMLElement;
-      controls: OrbitControls;
-    }
+    type: "INIT";
+    renderer: THREE.WebGLRenderer;
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    domElement: HTMLElement;
+    controls: OrbitControls;
+  }
   | { type: "ADD_ENITITIES"; entities: Entity[] }
   | {
-      type: "UPDATE_ENTITY";
-      name: string;
-      key: "object" | "name" | "pattern";
-      value: any;
-    };
+    type: "UPDATE_ENTITY";
+    name: string;
+    key: "object" | "name" | "pattern";
+    value: any;
+  };
 
 type Dispatch = (action: Action) => void;
 
@@ -156,7 +156,7 @@ export const useThreeScene = () => {
       (entity: Entity) => entity.name === "egg"
     );
     if (!object) {
-      return console.error("Could not find egg");
+      return console.log("egg is either not loaded or missing")
     }
     const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
     const eggMaterial = egg.material as THREE.MeshBasicMaterial;

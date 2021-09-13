@@ -13,6 +13,7 @@ import EggMaker from "./EggMaker";
 import Login from "./Login";
 import Mint from "./Mint";
 import ChevronLeft from "../../components/icons/ChevronLeft";
+import ExportReceipt from "./ExportReceipt";
 
 const modalMap = {
   info: { component: <Info />, maxState: 0 },
@@ -23,6 +24,10 @@ const modalMap = {
     component: <Mint />,
     maxState: 1,
   },
+  exportReceipt: {
+    component: <ExportReceipt />,
+    maxState: 0
+  }
 };
 
 export default function Modal() {
@@ -46,10 +51,6 @@ export default function Modal() {
     setMaxModalState(modal.maxState);
   }, [modalType, setMaxModalState, modal]);
 
-  if (!modal) {
-    return <div></div>;
-  }
-
   return createPortal(
     <div className={`modal__container ${display ? "open" : ""}`}>
       <CSSTransition
@@ -67,7 +68,7 @@ export default function Modal() {
           <button onClick={toggleModal} className="modal__close">
             <CloseIcon />
           </button>
-          <div className="modal__content">{modal.component}</div>
+          <div className="modal__content">{modal && modal.component}</div>
         </div>
       </CSSTransition>
       <div onClick={toggleModal} className="modal__bg"></div>

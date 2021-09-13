@@ -6,9 +6,10 @@ import { useThreeScene } from "../../contexts/ThreeContext";
 import { useCustomEgg, useUser } from "../../contexts/UserContext";
 import { EGGVG, EGG_MASK, ViewStates } from "./constants";
 import { exportYaytso } from "./services";
+import Buttons from "./Buttons";
 
 import "../../styles/egg.css";
-import Buttons from "./Buttons";
+import { ModalTypes } from "../../contexts/types";
 
 export default function Egg() {
   const [viewState, setViewState] = useState<ViewStates>(ViewStates.Blank);
@@ -40,15 +41,24 @@ export default function Egg() {
     return setViewState(ViewStates.Blank);
   }, [pattern, customEgg]);
 
+  // MAYBE ONLY IF WAS CREATED?
+  useEffect(() => {
+    return () => clearEgg()
+  }, [])
+
   const reset = () => {
     clearPattern();
     clearEgg();
   };
 
+  const { name, description } = customEgg;
+
   const onExport = () => {
     setViewState(ViewStates.Creating);
-    exportYaytso(scene, customEgg, user.uid, () =>
+    exportYaytso(scene, customEgg, user.uid, (metaCID, svgCID, gltfCID, svgUrl) => {
       setViewState(ViewStates.Success)
+      openModal(ModalTypes.ExportReceipt, { metaCID, svgCID, gltfCID, svgUrl, name, description })
+    }
     );
   };
 
@@ -59,9 +69,8 @@ export default function Egg() {
         className="egg__details"
         style={{ position: "absolute", left: 50, top: 100 }}
       >
-        <div>{customEgg.name}</div>
-        <div>{customEgg.description}</div>
-        <div>{customEgg.recipient}</div>
+        <div>{name}</div>
+        <div>{description}</div>
       </div>
       <div style={{ textAlign: "center" }}>
         <Buttons

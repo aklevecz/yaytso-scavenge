@@ -103,7 +103,7 @@ export const useModalToggle = () => {
 
   const toggleModal = () => dispatch({ type: "TOGGLE_MODAL" });
 
-  const { maxState, modalState } = state;
+  const { maxState, modalState, open } = state;
 
   const onModalBack = () => {
     const newState = modalState - 1;
@@ -132,6 +132,7 @@ export const useModalToggle = () => {
     modalState,
     setMaxModalState,
     reset,
+    open,
   };
 };
 

@@ -25,6 +25,7 @@ body,
   width: 100%;
   background: white;
   color: black;
+  overflow: hidden;
 }
 
 @media screen and (max-width: 768px) {

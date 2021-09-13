@@ -9,10 +9,10 @@ import {
 
 type Action =
   | {
-      type: "SET_PATTERN";
-      pattern: CanvasTexture;
-      canvas: HTMLCanvasElement;
-    }
+    type: "SET_PATTERN";
+    pattern: CanvasTexture;
+    canvas: HTMLCanvasElement;
+  }
   | { type: "CLEAR_PATTERN" };
 
 type Dispatch = (action: Action) => void;
@@ -89,7 +89,7 @@ export const useUpdatePattern = () => {
       createEggMask(eggMask, canvas, 200, 200);
       const pattern = createTexture(canvas, 7);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
-      setTimeout(() => setUpdating(false), 2000);
+      setUpdating(false)
     };
     reader.readAsDataURL(file);
   };
