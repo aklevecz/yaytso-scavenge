@@ -26,8 +26,8 @@ const modalMap = {
   },
   exportReceipt: {
     component: <ExportReceipt />,
-    maxState: 0
-  }
+    maxState: 0,
+  },
 };
 
 export default function Modal() {
@@ -60,7 +60,7 @@ export default function Modal() {
         onExited={() => setDisplay(false)}
       >
         <div className="modal__wrapper">
-          {modalState > 0 && (
+          {modalState > 1 && (
             <button onClick={onModalBack} className="modal__back">
               <ChevronLeft />
             </button>

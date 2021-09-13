@@ -7,6 +7,7 @@ import { PatternProvider } from "./contexts/PatternContext";
 import Nav from "./components/Nav";
 import { useLoading } from "./contexts/UserContext";
 import DotTyping from "./components/Loading/DotTyping";
+import Modal from "./containers/Modal";
 
 const AppComponents = () => (
   <Switch>
@@ -22,15 +23,16 @@ const AppComponents = () => (
       </PatternProvider>
     </Route>
   </Switch>
-)
+);
 
 export default function Routes() {
-  const loading = useLoading()
+  const loading = useLoading();
   return (
     <Router>
       <Nav />
       {loading && <DotTyping />}
       {!loading && <AppComponents />}
+      <Modal />
     </Router>
   );
 }

@@ -39,13 +39,9 @@ export default function Eggs({ wallet }: Props) {
             <div key={`yaytso${i}`} className="wallet__egg-wrapper">
               <div dangerouslySetInnerHTML={{ __html: svg }} />
               {wallet.eth && !svgToNFT[i] ? (
-                <Button name="Mint" onClick={onClick} width="50%" size="flex" />
+                <Button name="Mint" onClick={onClick} width="30%" size="flex" />
               ) : (
-                <div
-                  className="wallet__nft-tag"
-                >
-                  NFT
-                </div>
+                <div className="wallet__nft-tag">NFT</div>
               )}
             </div>
           );
