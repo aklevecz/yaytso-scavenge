@@ -43,6 +43,20 @@ export const delay = (ms: number, callback: Function) => {
   });
 };
 
+export const drawToPreview = (
+  imgDataURL: string,
+  canvas: HTMLCanvasElement,
+  width = 200,
+  height = 200
+) => {
+  const img = new Image();
+  img.src = imgDataURL;
+  img.onload = (e) => {
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(img, 0, 0, width, height);
+  };
+};
+
 export const createCanvas = (
   imgDataURL: string
 ): Promise<HTMLCanvasElement> => {

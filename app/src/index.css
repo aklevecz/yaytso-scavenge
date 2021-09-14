@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Sen:wght@400;700;800&display=swap");
 :root {
   --yellow: #f1efb0;
   --off-white: #f5efef;
@@ -8,7 +8,7 @@
 
 body {
   margin: 0;
-  font-family: Montserrat;
+  font-family: Sen;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -45,7 +45,6 @@ button,
 .icon {
   transition: filter 500ms;
   cursor: pointer;
-  font-family: monospace;
 }
 
 button:hover,

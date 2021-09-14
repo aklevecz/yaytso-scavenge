@@ -2,12 +2,13 @@
   display: flex;
   justify-content: space-between;
   background-color: white;
+  text-align: center;
 }
 
 .nav a {
   color: #ffffff;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 8px;
   transition: color 1s, background 1s, border-bottom 1s;
   font-size: 1.1rem;
   /* font-weight: bold; */

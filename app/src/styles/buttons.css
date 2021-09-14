@@ -6,6 +6,13 @@ button.btn {
   border: 1px solid black;
   width: 130px;
   height: 50px;
+  font-weight: bold;
+  font-family: Sen;
+}
+
+button.btn.inverse {
+  color: black;
+  background-color: white;
 }
 
 button.btn.xs {

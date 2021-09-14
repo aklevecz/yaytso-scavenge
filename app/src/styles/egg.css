@@ -2,6 +2,7 @@
   display: grid;
   grid-template-rows: 1fr 20%;
   height: 100%;
+  position: relative;
 }
 
 .egg__details {
@@ -35,4 +36,10 @@
 .upload-label:hover {
   color: white;
   background-color: black;
+}
+
+#preview-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
 }

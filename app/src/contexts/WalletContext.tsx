@@ -205,7 +205,7 @@ export const useCreateWallet = () => {
 export const useYaytsoSVGs = () => {
   const [fetching, setFetching] = useState(true);
   // REFACTOR
-  const [svgToNFT, setSvgToNFT] = useState<boolean[]>([]);
+  const [svgToNFT, setSvgToNFT] = useState<any[]>([]);
   const context = useContext(WalletContext);
   if (context === undefined) {
     throw new Error("Wallet Context error in YaytsoSVGs hook");
@@ -220,9 +220,9 @@ export const useYaytsoSVGs = () => {
   }, []);
 
   useEffect(() => {
-    const svgMap: boolean[] = [];
+    const svgMap: any[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
-      svgMap.push(state.yaytsoMeta[i].nft);
+      svgMap.push({ nft: state.yaytsoMeta[i].nft, name: state.yaytsoMeta[i].name });
       return fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then((r) => r.text());
     });
     Promise.all(svgPromises).then((svgs) => {

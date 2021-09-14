@@ -37,11 +37,12 @@ export default function Eggs({ wallet }: Props) {
           const onClick = () => openModal(ModalTypes.Mint, { id: i });
           return (
             <div key={`yaytso${i}`} className="wallet__egg-wrapper">
+              <div style={{ fontSize: "2rem", fontWeight: "bold" }}>{svgToNFT[i].name}</div>
               <div dangerouslySetInnerHTML={{ __html: svg }} />
-              {wallet.eth && !svgToNFT[i] ? (
-                <Button name="Mint" onClick={onClick} width="30%" size="flex" />
+              {wallet.eth && !svgToNFT[i].nft ? (
+                <Button className="inverse" name="Mint" onClick={onClick} width="30%" size="flex" />
               ) : (
-                <div className="wallet__nft-tag">NFT</div>
+                <div style={{ background: "red", fontWeight: "bold", fontSize: "2rem" }}>NFT</div>
               )}
             </div>
           );

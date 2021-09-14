@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import EggMask from "../../components/Mask/Egg";
 import { useOpenModal } from "../../contexts/ModalContext";
-import { useUpdatePattern } from "../../contexts/PatternContext";
+import { useDraw, useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
 import { useCustomEgg, useUser } from "../../contexts/UserContext";
 import { EGGVG, EGG_MASK, ViewStates } from "./constants";
@@ -15,8 +15,10 @@ export default function Egg() {
   const [viewState, setViewState] = useState<ViewStates>(ViewStates.Blank);
   const sceneContainer = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const draw = useDraw(canvasRef.current)
   const { initScene, scene } = useThreeScene();
-  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern();
+  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern(canvasRef.current);
   const { customEgg, clearEgg } = useCustomEgg();
   const openModal = useOpenModal();
 
@@ -85,6 +87,7 @@ export default function Egg() {
         />
       </div>
       <EggMask visible={false} svgId={EGGVG} imgId={EGG_MASK} />
+      <canvas width={200} height={200} ref={canvasRef} id="preview-canvas"></canvas>
     </div>
   );
 }
