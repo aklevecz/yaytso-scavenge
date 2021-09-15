@@ -1,5 +1,13 @@
-import { createContext, RefObject, useContext, useEffect, useReducer, useState } from "react";
+import {
+  createContext,
+  RefObject,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { CanvasTexture, RepeatWrapping } from "three";
+import { PREVIEW_CANVAS_ID } from "../containers/Egg/constants";
 import {
   createCanvas,
   createCanvasCropped,
@@ -10,10 +18,10 @@ import {
 
 type Action =
   | {
-    type: "SET_PATTERN";
-    pattern: CanvasTexture;
-    canvas: HTMLCanvasElement;
-  }
+      type: "SET_PATTERN";
+      pattern: CanvasTexture;
+      canvas: HTMLCanvasElement;
+    }
   | { type: "CLEAR_PATTERN" };
 
 type Dispatch = (action: Action) => void;
@@ -50,6 +58,22 @@ const PatternProvider = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  useEffect(() => {
+    if (!state.pattern && !state.canvas) {
+      const previewCanvas = document.getElementById(
+        PREVIEW_CANVAS_ID
+      )! as HTMLCanvasElement;
+      const ctx = previewCanvas.getContext("2d")!;
+
+      const w = previewCanvas.width;
+      const h = previewCanvas.height;
+
+      ctx.rect(0, 0, w, h);
+      ctx.fillStyle = "white";
+      ctx.fill();
+    }
+  }, [state.pattern, state.canvas]);
+
   const value = { state, dispatch };
   return (
     <PatternContext.Provider value={value}>{children}</PatternContext.Provider>
@@ -84,17 +108,17 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
         return console.error("expecting a single file");
       }
       if (!canvasPreview) {
-        return console.error("canvas preview is missing")
+        return console.error("canvas preview is missing");
       }
       const canvas = await createCanvas(e.target.result);
-      drawToPreview(e.target.result, canvasPreview)
+      drawToPreview(e.target.result, canvasPreview);
       // const canvasSmall = await createCanvasCropped(e.target.result, 200, 200);
 
       const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
       createEggMask(eggMask, canvas, 200, 200);
       const pattern = createTexture(canvas, 7);
       dispatch({ type: "SET_PATTERN", canvas, pattern });
-      setUpdating(false)
+      setUpdating(false);
     };
     reader.readAsDataURL(file);
   };
@@ -127,7 +151,7 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
 
   useEffect(() => {
     if (!canvas) {
-      return
+      return;
     }
     const mousePos = { x: 0, y: 0 };
     const prevMouse = { x: 0, y: 0 };
@@ -163,16 +187,16 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
       if (mouseDown && prevMouse.x !== 0 && prevMouse.y !== 0) {
         ctx.beginPath();
         // ctx.strokeStyle = colorRef.current;
-        ctx.strokeStyle = "black"
+        ctx.strokeStyle = "black";
         ctx.lineWidth = 3;
         ctx.moveTo(prevMouse.x, prevMouse.y);
         ctx.lineTo(nX, nY);
         ctx.closePath();
         ctx.stroke();
 
-        const pattern = createTexture(canvas, 7)
+        const pattern = createTexture(canvas, 7);
         // TOD: Refactor?
-        dispatch({ type: "SET_PATTERN", canvas, pattern })
+        dispatch({ type: "SET_PATTERN", canvas, pattern });
 
         //   const tinyCanvas = document.getElementById("tiny") as HTMLCanvasElement;
         //   const tinyContext = tinyCanvas!.getContext("2d");
@@ -216,10 +240,13 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
       if (!mouseMoved) {
         const { x, y } = normalizedPos();
         // ctx.fillStyle = colorRef.current;
-        ctx.fillStyle = "black"
+        ctx.fillStyle = "black";
         ctx.fillRect(x, y, 5, 5);
-
-      } mousePos.x = 0;
+        const pattern = createTexture(canvas, 7);
+        // TOD: Refactor?
+        dispatch({ type: "SET_PATTERN", canvas, pattern });
+      }
+      mousePos.x = 0;
       mousePos.y = 0;
       prevMouse.x = 0;
       prevMouse.y = 0;
@@ -245,5 +272,5 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
       canvas.removeEventListener("touchstart", onDown);
       canvas.removeEventListener("touchend", onUp);
     };
-  }, [canvas])
-}
+  }, [canvas]);
+};

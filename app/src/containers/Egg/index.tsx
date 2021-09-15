@@ -4,7 +4,7 @@ import { useOpenModal } from "../../contexts/ModalContext";
 import { useDraw, useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreeScene } from "../../contexts/ThreeContext";
 import { useCustomEgg, useUser } from "../../contexts/UserContext";
-import { EGGVG, EGG_MASK, ViewStates } from "./constants";
+import { EGGVG, EGG_MASK, PREVIEW_CANVAS_ID, ViewStates } from "./constants";
 import { exportYaytso } from "./services";
 import Buttons from "./Buttons";
 
@@ -16,9 +16,11 @@ export default function Egg() {
   const sceneContainer = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const draw = useDraw(canvasRef.current)
+  const draw = useDraw(canvasRef.current);
   const { initScene, scene } = useThreeScene();
-  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern(canvasRef.current);
+  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern(
+    canvasRef.current
+  );
   const { customEgg, clearEgg } = useCustomEgg();
   const openModal = useOpenModal();
 
@@ -45,8 +47,8 @@ export default function Egg() {
 
   // MAYBE ONLY IF WAS CREATED?
   useEffect(() => {
-    return () => clearEgg()
-  }, [])
+    return () => clearEgg();
+  }, []);
 
   const reset = () => {
     clearPattern();
@@ -57,10 +59,21 @@ export default function Egg() {
 
   const onExport = () => {
     setViewState(ViewStates.Creating);
-    exportYaytso(scene, customEgg, user.uid, (metaCID, svgCID, gltfCID, svgUrl) => {
-      setViewState(ViewStates.Success)
-      openModal(ModalTypes.ExportReceipt, { metaCID, svgCID, gltfCID, svgUrl, name, description })
-    }
+    exportYaytso(
+      scene,
+      customEgg,
+      user.uid,
+      (metaCID, svgCID, gltfCID, svgUrl) => {
+        setViewState(ViewStates.Success);
+        openModal(ModalTypes.ExportReceipt, {
+          metaCID,
+          svgCID,
+          gltfCID,
+          svgUrl,
+          name,
+          description,
+        });
+      }
     );
   };
 
@@ -87,7 +100,12 @@ export default function Egg() {
         />
       </div>
       <EggMask visible={false} svgId={EGGVG} imgId={EGG_MASK} />
-      <canvas width={200} height={200} ref={canvasRef} id="preview-canvas"></canvas>
+      <canvas
+        width={200}
+        height={200}
+        ref={canvasRef}
+        id={PREVIEW_CANVAS_ID}
+      ></canvas>
     </div>
   );
 }
