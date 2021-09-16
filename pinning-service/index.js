@@ -9,6 +9,21 @@ const upload = multer();
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
+// app.use(function (req, res, next) {
+//   res
+//     .header("Access-Control-Allow-Origin", "*")
+//     .header("Access-Control-Allow-Credentials", true);
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   res.header(
+//     "Access-Control-Allow-Methods",
+//     " GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
+//   );
+
+//   next();
+// });
 const { NFTStorage, Blob } = require("nft.storage");
 const IPFS = require("ipfs-core");
 
@@ -37,6 +52,8 @@ const dev = process.env.NODE_ENV === "dev";
 
   app.post("/", upload.any(), async (req, res) => {
     const { name, desc } = JSON.parse(req.body.metadata);
+    // console.log(req.body);
+    // const { name, desc } = req.body.metadata;
     console.log(name, desc);
     const gltf = req.files[0];
     const svg = req.files[1];

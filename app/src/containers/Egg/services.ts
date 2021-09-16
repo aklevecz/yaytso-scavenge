@@ -4,6 +4,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { Egg } from "../../contexts/types";
 import { EGGVG } from "./constants";
 import { createBlobs, saveYaytso } from "./utils";
+import axios from "axios";
 
 export const PIN_URL =
   process.env.NODE_ENV === "development"
@@ -11,9 +12,24 @@ export const PIN_URL =
     : "https://pin.yaytso.art";
 
 export const pinBlobs = (data: FormData) =>
-  fetch(PIN_URL, { method: "POST", body: data })
-    .then((r) => r.json())
-    .then((d) => d);
+  axios.post(PIN_URL, data).then((r) => r);
+// axios({
+//   method: "post",
+//   url: PIN_URL,
+//   data,
+//   withCredentials: true,
+//   headers: { "Content-Type": "multipart/form-data" },
+// }).then((r) => r);
+// fetch(PIN_URL, {
+//   method: "POST",
+//   body: data,
+//   headers: {
+//     "Content-Type": "multipart/form-data",
+//     credentials: "same-origin",
+//   },
+// })
+//   .then((r) => r.json())
+//   .then((d) => d);
 
 export const exportYaytso = async (
   scene: Scene | undefined,
@@ -37,38 +53,39 @@ export const exportYaytso = async (
     return console.error("please name your egg");
   }
   const { description, name } = customEgg;
-  alert(description + name);
   exporter.parse(
     scene,
     async (sceneGLTF) => {
       const eggVG = document.getElementById(EGGVG);
       const data: any = createBlobs(sceneGLTF, eggVG, description, name);
-      alert(data);
-      alert(PIN_URL);
+      // alert(data);
+      // alert(PIN_URL);
+      console.log(data);
       const r = await pinBlobs(data);
-      alert(r);
-      if (r.success) {
-        var arr: any = [];
-        for (var p in Object.getOwnPropertyNames(r.byteArray)) {
-          arr[p] = r.byteArray[p];
-        }
-        const svgUrl = URL.createObjectURL(data.get("svg"));
-        const patternHash = ethers.utils.hexlify(arr);
-        const response = await saveYaytso(
-          userId,
-          name,
-          description,
-          patternHash,
-          r.metaCID,
-          r.svgCID,
-          r.gltfCID
-        );
-        if (response) {
-          successCallBack(r.metaCID, r.svgCID, r.gltfCID, svgUrl);
-        } else {
-          console.error("save failed");
-        }
-      }
+      console.log(r);
+      // alert(r);
+      // if (r.success) {
+      //   var arr: any = [];
+      //   for (var p in Object.getOwnPropertyNames(r.byteArray)) {
+      //     arr[p] = r.byteArray[p];
+      //   }
+      //   const svgUrl = URL.createObjectURL(data.get("svg"));
+      //   const patternHash = ethers.utils.hexlify(arr);
+      //   const response = await saveYaytso(
+      //     userId,
+      //     name,
+      //     description,
+      //     patternHash,
+      //     r.metaCID,
+      //     r.svgCID,
+      //     r.gltfCID
+      //   );
+      //   if (response) {
+      //     successCallBack(r.metaCID, r.svgCID, r.gltfCID, svgUrl);
+      //   } else {
+      //     console.error("save failed");
+      //   }
+      // }
     },
     { onlyVisible: true }
   );
