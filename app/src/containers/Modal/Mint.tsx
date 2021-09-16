@@ -32,22 +32,24 @@ const Confirmation = () => {
 };
 
 const Minting = ({ status }: { status: string }) => {
-  console.log(status, "status")
   return (
     <div style={{ padding: "20px 0" }}>
       {status}
     </div>
   )
 }
+
+const Bold = ({ children }: { children: JSX.Element | string }) => <span style={{ fontWeight: "bold" }}>{children}</span>
+
 const RINKEBY_ETHERSCAN = "https://rinkeby.etherscan.io/tx"
 const Receipt = (receipt: any) => {
   const { metaCID, svg, transactionHash, blockNumber, tokenId } = receipt.receipt;
   return (
     <div className="mint__receipt">
       <div className="mint__receipt__id">{tokenId}</div>
-      <div>Metadata: <a className="mint__receipt__meta-cid" href={`${IPFS_URL}/${metaCID}`}>{metaCID}</a></div>
-      <div>Tx: <a className="mint__receipt__tx-hash" href={`${RINKEBY_ETHERSCAN}/${transactionHash}`}>{transactionHash}</a></div>
-      <div>Block#:<div className="mint__receipt__block-number">{blockNumber}</div></div>
+      <div><Bold>Metadata</Bold> <a className="mint__receipt__meta-cid" href={`${IPFS_URL}/${metaCID}`}>ipfs://{metaCID}</a></div>
+      <div><Bold>Tx</Bold> <a className="mint__receipt__tx-hash" href={`${RINKEBY_ETHERSCAN}/${transactionHash}`}>{transactionHash}</a></div>
+      <div><Bold>Block#</Bold><div className="mint__receipt__block-number">{blockNumber}</div></div>
       <div className="mint__receipt__img" dangerouslySetInnerHTML={{ __html: svg }}></div>
     </div >
   )

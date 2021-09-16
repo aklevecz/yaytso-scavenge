@@ -82,7 +82,7 @@ export default function Egg() {
       <div className="canvas__container" ref={sceneContainer} />
       <div
         className="egg__details"
-        style={{ position: "absolute", left: 50, top: 100 }}
+        style={{ position: "absolute", right: 50, top: 100, textAlign: "right" }}
       >
         <div>{name}</div>
         <div>{description}</div>

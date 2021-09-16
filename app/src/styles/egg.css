@@ -31,11 +31,12 @@
   font-size: 1.5rem;
   transition: color 1s, background-color 1s;
   cursor: pointer;
+  user-select: none;
 }
 
 .upload-label:hover {
-  color: white;
-  background-color: black;
+  color: black;
+  background-color: white;
 }
 
 #preview-canvas {

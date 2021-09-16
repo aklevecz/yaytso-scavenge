@@ -40,25 +40,22 @@ export default function Wallet() {
             <div style={{ padding: 10, textAlign: "center" }}>
               {user.uid && <LogoutButton size="xs" />}
             </div>
-          </div>
-        </div>
-        {!isConnected && (
-          <div
-            className="wallet__connect-container"
-            style={{ textAlign: "center", margin: 20 }}
-          >
-            <div>
+          </div>       {!isConnected && (
+            <div
+              className="wallet__connect-container"
+              style={{ textAlign: "center", margin: 20 }}
+            >
               <Button
                 name="Connect Metamask"
-                size="lg"
+                size="flex2"
                 onClick={metamaskConnect}
               />
+
+              <Button name="Connect WC" size="flex2" onClick={startProvider} />
             </div>
-            <div>
-              <Button name="Connect WC" size="lg" onClick={startProvider} />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+
 
         {user.uid && <Eggs wallet={wallet} />}
         {!user.uid && (

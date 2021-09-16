@@ -10,7 +10,6 @@ import { CanvasTexture, RepeatWrapping } from "three";
 import { PREVIEW_CANVAS_ID } from "../containers/Egg/constants";
 import {
   createCanvas,
-  createCanvasCropped,
   createEggMask,
   createTexture,
   drawToPreview,
@@ -18,10 +17,11 @@ import {
 
 type Action =
   | {
-      type: "SET_PATTERN";
-      pattern: CanvasTexture;
-      canvas: HTMLCanvasElement;
-    }
+    type: "SET_PATTERN";
+    pattern: CanvasTexture;
+    canvas: HTMLCanvasElement;
+    canvasPreview: HTMLCanvasElement;
+  }
   | { type: "CLEAR_PATTERN" };
 
 type Dispatch = (action: Action) => void;
@@ -29,11 +29,13 @@ type Dispatch = (action: Action) => void;
 type State = {
   pattern: CanvasTexture | null;
   canvas: HTMLCanvasElement | null;
+  canvasPreview: HTMLCanvasElement | null
 };
 
 const initialState = {
   pattern: null,
   canvas: null,
+  canvasPreview: null,
 };
 
 const PatternContext = createContext<
@@ -43,7 +45,7 @@ const PatternContext = createContext<
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "SET_PATTERN":
-      return { ...state, pattern: action.pattern, canvas: action.canvas };
+      return { ...state, pattern: action.pattern, canvas: action.canvas, canvasPreview: action.canvasPreview };
     case "CLEAR_PATTERN":
       return { ...state, pattern: null, canvas: null };
     default:
@@ -59,10 +61,11 @@ const PatternProvider = ({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    if (!state.pattern && !state.canvas) {
-      const previewCanvas = document.getElementById(
-        PREVIEW_CANVAS_ID
-      )! as HTMLCanvasElement;
+    if (!state.pattern && !state.canvas && state.canvasPreview) {
+      // const previewCanvas = document.getElementById(
+      //   PREVIEW_CANVAS_ID
+      // )! as HTMLCanvasElement;
+      const previewCanvas = state.canvasPreview;
       const ctx = previewCanvas.getContext("2d")!;
 
       const w = previewCanvas.width;
@@ -111,13 +114,12 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
         return console.error("canvas preview is missing");
       }
       const canvas = await createCanvas(e.target.result);
-      drawToPreview(e.target.result, canvasPreview);
-      // const canvasSmall = await createCanvasCropped(e.target.result, 200, 200);
+      drawToPreview(e.target.result, canvasPreview)
 
       const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
       createEggMask(eggMask, canvas, 200, 200);
       const pattern = createTexture(canvas, 7);
-      dispatch({ type: "SET_PATTERN", canvas, pattern });
+      dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview });
       setUpdating(false);
     };
     reader.readAsDataURL(file);
@@ -194,36 +196,8 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
         ctx.closePath();
         ctx.stroke();
 
-        const pattern = createTexture(canvas, 7);
-        // TOD: Refactor?
-        dispatch({ type: "SET_PATTERN", canvas, pattern });
-
-        //   const tinyCanvas = document.getElementById("tiny") as HTMLCanvasElement;
-        //   const tinyContext = tinyCanvas!.getContext("2d");
-
-        //   // MAGIC NUMBER LAND :D
-        //   tinyContext!.drawImage(canvas, 0, 0, 200, 200, 0, 0, 40, 40);
-
-        //   var c = document.getElementById("repeater") as HTMLCanvasElement;
-        //   if (!c) {
-        //     return;
-        //   }
-        //   var rctx = c.getContext("2d");
-        //   rctx!.clearRect(0, 0, c.width, c.height);
-        //   var t = document.getElementById("tiny") as HTMLImageElement;
-        //   //   t.style.width = "10px";
-        //   //   t.height = 80;
-        //   if (!t) {
-        //     return;
-        //   }
-        //   var pat = rctx!.createPattern(t, "repeat")!;
-        //   rctx!.rect(0, 0, 200, 200);
-        //   rctx!.fillStyle = pat;
-        //   rctx!.fill();
-        //   (document.getElementById("egg-mask") as any).setAttribute(
-        //     "xlink:href",
-        //     c.toDataURL()
-        //   );
+        const pattern = createTexture(canvas, 7)
+        dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview: canvas })
       }
       prevMouse.x = nX;
       prevMouse.y = nY;
@@ -244,7 +218,7 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
         ctx.fillRect(x, y, 5, 5);
         const pattern = createTexture(canvas, 7);
         // TOD: Refactor?
-        dispatch({ type: "SET_PATTERN", canvas, pattern });
+        dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview: canvas });
       }
       mousePos.x = 0;
       mousePos.y = 0;

@@ -1,4 +1,4 @@
-export type Sizes = "xs" | "s" | "md" | "lg" | "flex";
+export type Sizes = "xs" | "s" | "md" | "lg" | "flex" | "flex2";
 
 type Props = {
   name: string;

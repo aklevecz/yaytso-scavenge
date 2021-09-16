@@ -338,7 +338,6 @@ export const useWalletConnect = () => {
   }, [walletConnectProvider, startProvider]);
 
   useEffect(() => {
-    console.log(state.connected, walletConnectProvider.connected);
     if (!state.connected && walletConnectProvider.connected) {
       walletConnectProvider.disconnect();
     }

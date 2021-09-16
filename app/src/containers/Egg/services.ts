@@ -8,7 +8,7 @@ import { createBlobs, saveYaytso } from "./utils";
 export const PIN_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:8082"
-    : "https://nft-service-i3w4qwywla-uc.a.run.app";
+    : "https://pin.yaytso.art";
 
 export const pinBlobs = (data: FormData) =>
   fetch(PIN_URL, { method: "POST", body: data })
@@ -37,12 +37,16 @@ export const exportYaytso = async (
     return console.error("please name your egg");
   }
   const { description, name } = customEgg;
+  alert(description + name);
   exporter.parse(
     scene,
     async (sceneGLTF) => {
       const eggVG = document.getElementById(EGGVG);
       const data: any = createBlobs(sceneGLTF, eggVG, description, name);
+      alert(data);
+      alert(PIN_URL);
       const r = await pinBlobs(data);
+      alert(r);
       if (r.success) {
         var arr: any = [];
         for (var p in Object.getOwnPropertyNames(r.byteArray)) {

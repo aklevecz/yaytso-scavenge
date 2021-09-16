@@ -3,7 +3,6 @@ type Props = {
 };
 
 export default function LoadingButton({ color }: Props) {
-  console.log("render");
   return (
     <button className="btn" style={{ background: "black" }}>
       {/* <div className="dot-elastic"></div> */}

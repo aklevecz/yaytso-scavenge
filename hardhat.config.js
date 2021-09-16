@@ -29,6 +29,10 @@ module.exports = {
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
       accounts: [pp],
     },
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      accounts: [pp],
+    },
   },
   paths: {
     artifacts: "./app/src/ethereum",

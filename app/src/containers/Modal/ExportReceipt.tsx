@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Button from "../../components/Button";
+import TagText from "../../components/Text/Tag";
 import { useModalToggle, useModalData } from "../../contexts/ModalContext";
 import { EGGVG } from "../Egg/constants";
+
 
 export default function ExportReceipt() {
   const [egg, setEgg] = useState<any>(null);
@@ -32,12 +34,10 @@ export default function ExportReceipt() {
   return (
     <div>
       <div className="modal__title">Your Beautiful Egg</div>
-      <div className="modal__block columns" style={{ position: "relative" }}>
+      <div className="modal__block columns" style={{ position: "relative", textAlign: "center", border: "1px solid black", margin: 20 }}>
+        <TagText>{name}</TagText>
         <div className="egg-container" style={{ width: "100%" }} />
-        <div style={{ position: "absolute", left: "20%", top: "10%" }}>
-          <div>{name}</div>
-          <div>{description}</div>
-        </div>
+        <TagText>{description}</TagText>
       </div>
       <div className="modal__button-container">
         <Button name="Ok" onClick={done} />

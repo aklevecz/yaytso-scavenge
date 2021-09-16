@@ -28,7 +28,7 @@ const YAYTSO_ADDRESS =
 
 const contractMap: { [key: string]: { interface: any; address: string } } = {
   yaytso: { interface: YaytsoInterface, address: YAYTSO_ADDRESS },
-  carton: { interface: CartonInterface, address: CARTON_RINKEBY_ADDRESS },
+  carton: { interface: CartonInterface, address: CARTON_MAIN_ADDRESS },
 };
 
 type Action = {

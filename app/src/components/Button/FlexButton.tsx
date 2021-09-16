@@ -6,7 +6,6 @@ type Props = {
 };
 
 export default function FlexButton({ name, width }: Props) {
-  console.log("hi");
   return (
     <Button
       size="flex"

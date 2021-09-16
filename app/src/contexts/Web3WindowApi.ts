@@ -24,7 +24,6 @@ export class Web3WindowApi {
       .request({ method: "eth_requestAccounts" })
       .then(async (accounts: string[]) => {
         this.address = accounts[0];
-        console.log("request");
         return {
           address: this.address,
           chainId: this.chainId,
@@ -41,13 +40,13 @@ export class Web3WindowApi {
   // REFACTOR
   onAccountChange(action: any, fail: any) {
     this.ethereum.on("accountsChanged", (accounts: any) => {
-      console.log("account change", accounts)
+      console.log("account change", accounts);
       try {
         // action();
-        console.log("reload")
-        window.location.reload()
+        console.log("reload");
+        window.location.reload();
       } catch (e) {
-        console.log(e)
+        console.log(e);
         fail();
       }
     });

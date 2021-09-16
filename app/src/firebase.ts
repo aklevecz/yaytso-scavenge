@@ -10,10 +10,10 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 if (process.env.NODE_ENV === "development") {
-  db.settings({
-    host: "localhost:8081",
-    ssl: false,
-  });
+  // db.settings({
+  //   host: "localhost:8081",
+  //   ssl: false,
+  // });
   firebase.functions().useEmulator("http://localhost", 5002);
 }
 

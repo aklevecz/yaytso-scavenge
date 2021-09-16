@@ -24,10 +24,10 @@ type Action =
   | { type: "updateUserPosition"; userLocation: Position }
   | { type: "updateMarkers"; markerType: MarkerType; markers: Array<Marker> }
   | {
-      type: "collectIconSelectors";
-      iconType: string;
-      icons: Array<HTMLElement>;
-    };
+    type: "collectIconSelectors";
+    iconType: string;
+    icons: Array<HTMLElement>;
+  };
 
 type Dispatch = (action: Action) => void;
 
@@ -74,8 +74,12 @@ const loader = new Loader({
   version: "weekly",
 });
 
-const DEFAULT_LAT = 40.71431024435831;
-const DEFAULT_LNG = -73.9611631258235;
+const LA_COORDS = {
+  lat: 34.04944448684695,
+  lng: -118.24629715232342
+}
+
+const DEFAULT_COORDS = LA_COORDS;
 
 const MapProvider = ({
   children,
@@ -109,8 +113,8 @@ export const useMap = () => {
         zoom: 13,
         styles: silverMap,
         center: {
-          lat: DEFAULT_LAT,
-          lng: DEFAULT_LNG,
+          lat: DEFAULT_COORDS.lat,
+          lng: DEFAULT_COORDS.lng,
         },
       });
       dispatch({ type: "initMap", map });
