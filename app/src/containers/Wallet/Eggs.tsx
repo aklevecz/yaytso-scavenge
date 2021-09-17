@@ -25,7 +25,7 @@ export default function Eggs({ wallet }: Props) {
 
   if (fetching || !ready) {
     return (
-      <div className="loading-dot__container">
+      <div style={{ marginTop: 100 }} className="loading-dot__container">
         <div className="dot-typing-inverse"></div>
       </div>
     );

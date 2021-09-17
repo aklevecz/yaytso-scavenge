@@ -19,9 +19,8 @@ export const createBlobs = (
     type: "img/svg+xml;charset=utf-8",
   });
   data.append("svg", svgBlob);
-
-  const metadata = { name, desc };
-  data.append("metadata", JSON.stringify(metadata));
+  data.append("desc", desc);
+  data.append("name", name);
 
   return data;
 };
@@ -38,7 +37,16 @@ export const saveYaytso = async (
   return db
     .collection(YAYTSOS)
     .doc(metaCID)
-    .set({ uid, name, description, patternHash, metaCID, svgCID, gltfCID, nft:false })
+    .set({
+      uid,
+      name,
+      description,
+      patternHash,
+      metaCID,
+      svgCID,
+      gltfCID,
+      nft: false,
+    })
     .then(() => true)
     .catch(() => false);
 };

@@ -16,7 +16,7 @@ export default function EggMask({
       style={{ display: visible ? "block" : "none" }}
     >
       <defs>
-        <clipPath id="clip-path" transform="translate(56.67 29.81)">
+        <clipPath id={`clip-path-${svgId}`} transform="translate(56.67 29.81)">
           <path
             id="EGG"
             d="M109.45,96.27A54.73,54.73,0,1,1,0,96.27C0,66.05,24.5,0,54.72,0S109.45,66.05,109.45,96.27Z"
@@ -26,7 +26,7 @@ export default function EggMask({
       </defs>
       <g id="Layer_2" data-name="Layer 2">
         <g id="SVG">
-          <g clipPath="url(#clip-path)">
+          <g clipPath={`url(#clip-path-${svgId})`}>
             <image
               id={imgId}
               width="451"

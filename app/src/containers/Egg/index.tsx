@@ -18,7 +18,7 @@ export default function Egg() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const draw = useDraw(canvasRef.current);
   const { initScene, scene } = useThreeScene();
-  const { uploadPattern, pattern, clearPattern, updating } = useUpdatePattern(
+  const { uploadPattern, pattern, clearPattern, updating, canvas } = useUpdatePattern(
     canvasRef.current
   );
   const { customEgg, clearEgg } = useCustomEgg();
@@ -72,6 +72,7 @@ export default function Egg() {
           svgUrl,
           name,
           description,
+          canvas
         });
       }
     );

@@ -22,6 +22,15 @@ a.active {
   background-color: white;
 }
 
+a div {
+  background-color: white;
+  margin: 20px auto;
+}
+
+a.active div {
+  background-color: black;
+}
+
 .nav__container {
   grid-area: lbottom / lbottom / rbottom / rbottom;
   display: flex;

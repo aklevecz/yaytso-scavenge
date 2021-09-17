@@ -8,12 +8,13 @@ import {
 } from "../../contexts/ModalContext";
 import Info from "./Info";
 import CartonContent from "./CartonContent";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EggMaker from "./EggMaker";
 import Login from "./Login";
 import Mint from "./Mint";
 import ChevronLeft from "../../components/icons/ChevronLeft";
 import ExportReceipt from "./ExportReceipt";
+import { ModalTypes } from "../../contexts/types";
 
 const modalMap = {
   info: { component: <Info />, maxState: 0 },
@@ -33,14 +34,22 @@ const modalMap = {
 export default function Modal() {
   const open = useModalOpen();
   const [display, setDisplay] = useState(false);
-  const { toggleModal, onModalBack, modalState, setMaxModalState } =
+  const { toggleModal, onModalBack, modalState, setMaxModalState, reset } =
     useModalToggle();
   const modalType = useModalType();
+  const lastModal = useRef<ModalTypes | undefined>(undefined);
   const modal = modalType && modalMap[modalType];
 
   useEffect(() => {
     if (open) {
       setDisplay(true);
+      if (lastModal && lastModal.current) {
+        if (lastModal.current !== modalType) {
+          reset();
+        }
+      }
+    } else {
+      lastModal.current = modalType
     }
   }, [open]);
 
@@ -60,7 +69,7 @@ export default function Modal() {
         onExited={() => setDisplay(false)}
       >
         <div className="modal__wrapper">
-          {modalState > 1 && (
+          {modalState > 0 && (
             <button onClick={onModalBack} className="modal__back">
               <ChevronLeft />
             </button>

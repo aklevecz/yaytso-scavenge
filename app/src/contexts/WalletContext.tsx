@@ -14,6 +14,7 @@ import { Web3WindowApi } from "./Web3WindowApi";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import { fetchUserYaytsos } from "./services";
+import { ipfsLink } from "../utils";
 
 declare global {
   interface Window {
@@ -164,7 +165,6 @@ const WalletProvider = ({
         yaytsoMeta.push({ name, description, patternHash, image: "", nft });
       });
       dispatch({ type: "SET_META", yaytsoMeta });
-
       dispatch({ type: "SET_CIDS", yaytsoCIDS });
     });
 
@@ -173,6 +173,7 @@ const WalletProvider = ({
       updateYaytsos();
     }
   }, [user]);
+
   const value = { state, dispatch, initWallet, disconnect, updateYaytsos };
   return (
     <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
@@ -219,11 +220,16 @@ export const useYaytsoSVGs = () => {
     updateYaytsos();
   }, []);
 
+  // REFACTOR
   useEffect(() => {
+    if (yaytsoCIDS.length === 0) {
+      setFetching(false)
+      return
+    }
     const svgMap: any[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
       svgMap.push({ nft: state.yaytsoMeta[i].nft, name: state.yaytsoMeta[i].name });
-      return fetch(`${IPFS_URL}/${yaytsoCID.svgCID}`).then((r) => r.text());
+      return fetch(ipfsLink(yaytsoCID.svgCID)).then((r) => r.text());
     });
     Promise.all(svgPromises).then((svgs) => {
       setFetching(false);
@@ -231,6 +237,7 @@ export const useYaytsoSVGs = () => {
       setSvgToNFT(svgMap);
     });
   }, [yaytsoCIDS]);
+
   return { svgs: state.yaytsoSVGs, fetching, svgToNFT };
 };
 
@@ -290,12 +297,7 @@ export const useMetaMask = () => {
 
 export const useWalletConnect = () => {
   const context = useContext(WalletContext);
-  const [walletConnectProvider, setWalletConnectProvider] = useState(
-    new WalletConnectProvider({
-      infuraId: process.env.REACT_APP_INFURA_KEY,
-      chainId: process.env.NODE_ENV === "development" ? 4 : 1,
-    })
-  );
+  const [walletConnectProvider, setWalletConnectProvider] = useState<WalletConnectProvider | null>(null);
   if (context === undefined) {
     throw new Error("Wallet Context error in WalletConnect hook");
   }
@@ -303,7 +305,13 @@ export const useWalletConnect = () => {
   const { dispatch, state, initWallet } = context;
 
   const startProvider = useCallback(async () => {
-    await walletConnectProvider.enable();
+    console.log("STARTING PROVIDER")
+    const walletConnectProvider = new WalletConnectProvider({
+      infuraId: process.env.REACT_APP_INFURA_KEY,
+      chainId: process.env.NODE_ENV === "development" ? 4 : 1,
+    })
+    setWalletConnectProvider(walletConnectProvider)
+    await walletConnectProvider.enable().catch(console.log);
     const provider = new ethers.providers.Web3Provider(walletConnectProvider);
     const address = (await provider.listAccounts())[0];
     const chainId = (await provider.getNetwork()).chainId;
@@ -338,7 +346,7 @@ export const useWalletConnect = () => {
   }, [walletConnectProvider, startProvider]);
 
   useEffect(() => {
-    if (!state.connected && walletConnectProvider.connected) {
+    if (walletConnectProvider && !state.connected && walletConnectProvider.connected) {
       walletConnectProvider.disconnect();
     }
   }, [state.connected]);

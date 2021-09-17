@@ -1,5 +1,3 @@
-import { ethers } from "ethers";
-
 export class Web3WindowApi {
   ethereum: any;
   address: string | undefined;

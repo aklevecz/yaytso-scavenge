@@ -13,6 +13,7 @@ import smiler from "../../assets/smiler.svg"
 
 import "../../styles/mint.css"
 import { IPFS_URL } from "../../constants";
+import { ipfsLink } from "../../utils";
 
 const Recipient = () => {
   return (
@@ -47,7 +48,7 @@ const Receipt = (receipt: any) => {
   return (
     <div className="mint__receipt">
       <div className="mint__receipt__id">{tokenId}</div>
-      <div><Bold>Metadata</Bold> <a className="mint__receipt__meta-cid" href={`${IPFS_URL}/${metaCID}`}>ipfs://{metaCID}</a></div>
+      <div><Bold>Metadata</Bold> <a className="mint__receipt__meta-cid" href={ipfsLink(metaCID)}>ipfs://{metaCID}</a></div>
       <div><Bold>Tx</Bold> <a className="mint__receipt__tx-hash" href={`${RINKEBY_ETHERSCAN}/${transactionHash}`}>{transactionHash}</a></div>
       <div><Bold>Block#</Bold><div className="mint__receipt__block-number">{blockNumber}</div></div>
       <div className="mint__receipt__img" dangerouslySetInnerHTML={{ __html: svg }}></div>

@@ -11,25 +11,33 @@ export const PIN_URL =
     ? "http://localhost:8082"
     : "https://pin.yaytso.art";
 
-export const pinBlobs = (data: FormData) =>
-  axios.post(PIN_URL, data).then((r) => r);
-// axios({
-//   method: "post",
-//   url: PIN_URL,
-//   data,
-//   withCredentials: true,
-//   headers: { "Content-Type": "multipart/form-data" },
-// }).then((r) => r);
-// fetch(PIN_URL, {
-//   method: "POST",
-//   body: data,
-//   headers: {
-//     "Content-Type": "multipart/form-data",
-//     credentials: "same-origin",
-//   },
-// })
-//   .then((r) => r.json())
-//   .then((d) => d);
+export const pinBlobs = (data: FormData) => {
+  return fetch(PIN_URL, {
+    method: "POST",
+    body: data,
+    headers: {
+      credentials: "include",
+    },
+  })
+    .then((r) => r.json())
+    .then((d) => d);
+  // axios.post(PIN_URL, data).then((r) => r);
+  // return axios({
+  //   method: "post",
+  //   url: PIN_URL,
+  //   data,
+  //   withCredentials: true,
+  //   headers: { "Content-Type": "multipart/form-data" },
+  // }).then((r) => r);
+
+  // var xhttp = new XMLHttpRequest();
+  // xhttp.open("POST", PIN_URL, true);
+  // xhttp.onreadystatechange = function () {
+  //   alert(xhttp.response);
+  // };
+  // // xhttp.setRequestHeader("Content-type", "multipart/form-data");
+  // return xhttp.send(data);
+};
 
 export const exportYaytso = async (
   scene: Scene | undefined,
@@ -58,34 +66,30 @@ export const exportYaytso = async (
     async (sceneGLTF) => {
       const eggVG = document.getElementById(EGGVG);
       const data: any = createBlobs(sceneGLTF, eggVG, description, name);
-      // alert(data);
-      // alert(PIN_URL);
-      console.log(data);
+
       const r = await pinBlobs(data);
-      console.log(r);
-      // alert(r);
-      // if (r.success) {
-      //   var arr: any = [];
-      //   for (var p in Object.getOwnPropertyNames(r.byteArray)) {
-      //     arr[p] = r.byteArray[p];
-      //   }
-      //   const svgUrl = URL.createObjectURL(data.get("svg"));
-      //   const patternHash = ethers.utils.hexlify(arr);
-      //   const response = await saveYaytso(
-      //     userId,
-      //     name,
-      //     description,
-      //     patternHash,
-      //     r.metaCID,
-      //     r.svgCID,
-      //     r.gltfCID
-      //   );
-      //   if (response) {
-      //     successCallBack(r.metaCID, r.svgCID, r.gltfCID, svgUrl);
-      //   } else {
-      //     console.error("save failed");
-      //   }
-      // }
+      if (r.success) {
+        var arr: any = [];
+        for (var p in Object.getOwnPropertyNames(r.byteArray)) {
+          arr[p] = r.byteArray[p];
+        }
+        const svgUrl = URL.createObjectURL(data.get("svg"));
+        const patternHash = ethers.utils.hexlify(arr);
+        const response = await saveYaytso(
+          userId,
+          name,
+          description,
+          patternHash,
+          r.metaCID,
+          r.svgCID,
+          r.gltfCID
+        );
+        if (response) {
+          successCallBack(r.metaCID, r.svgCID, r.gltfCID, svgUrl);
+        } else {
+          console.error("save failed");
+        }
+      }
     },
     { onlyVisible: true }
   );

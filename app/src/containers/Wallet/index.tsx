@@ -9,6 +9,9 @@ import Eggs from "./Eggs";
 import LoginButton from "../../components/Button/LoginButton";
 import LogoutButton from "../../components/Button/LogoutButton";
 import { WalletTypes } from "../../contexts/types";
+import { motion, useViewportScroll, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
+
 
 export default function Wallet() {
   const { wallet, disconnect } = useWallet();
@@ -16,10 +19,15 @@ export default function Wallet() {
   const { metamaskConnect, isConnected } = useMetaMask();
   const { startProvider } = useWalletConnect();
 
+  const { scrollYProgress, scrollY } = useViewportScroll();
+  const marginLeft = useTransform(scrollY, [0, 100], [10, 1000])
+  const marginTop = useTransform(scrollY, [0, 100], [0, -230])
+
   return (
     <div className="wallet__root">
       <div className="wallet__container">
-        <div className="wallet__user-info">
+        <motion.div style={{ marginLeft }} className="wallet__user-info">
+          {/* <div className="wallet__user-info"> */}
           {wallet.connected && (
             <div className="wallet__address">
               <div>{wallet.address}</div>
@@ -54,28 +62,30 @@ export default function Wallet() {
               <Button name="Connect WC" size="flex2" onClick={startProvider} />
             </div>
           )}
-        </div>
+        </motion.div>
+        {/* </div> */}
 
-
-        {user.uid && <Eggs wallet={wallet} />}
-        {!user.uid && (
-          <div
-            style={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              textAlign: "center",
-              flexDirection: "column",
-              marginTop: "10%",
-              fontWeight: "bold",
-            }}
-          >
-            <div style={{ marginBottom: 20, fontSize: "1.3rem", width: "80%" }}>
-              You must login to view your collection!
+        <motion.div style={{ marginTop }}>
+          {user.uid && <Eggs wallet={wallet} />}
+          {!user.uid && (
+            <div
+              style={{
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                textAlign: "center",
+                flexDirection: "column",
+                marginTop: "10%",
+                fontWeight: "bold",
+              }}
+            >
+              <div style={{ marginBottom: 20, fontSize: "1.3rem", width: "80%" }}>
+                You must login to view your collection!
+              </div>
+              <LoginButton />
             </div>
-            <LoginButton />
-          </div>
-        )}
+          )}
+        </motion.div>
       </div>
     </div>
   );

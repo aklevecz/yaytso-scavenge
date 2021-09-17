@@ -10,6 +10,7 @@ import { CanvasTexture, RepeatWrapping } from "three";
 import { PREVIEW_CANVAS_ID } from "../containers/Egg/constants";
 import {
   createCanvas,
+  createCanvasCropped,
   createEggMask,
   createTexture,
   drawToPreview,
@@ -113,7 +114,8 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
       if (!canvasPreview) {
         return console.error("canvas preview is missing");
       }
-      const canvas = await createCanvas(e.target.result);
+      // const canvas = await createCanvas(e.target.result);
+      const canvas = await createCanvasCropped(e.target.result, 200, 200)
       drawToPreview(e.target.result, canvasPreview)
 
       const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
@@ -127,7 +129,7 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
 
   const clearPattern = () => dispatch({ type: "CLEAR_PATTERN" });
 
-  return { clearPattern, uploadPattern, pattern: state.pattern, updating };
+  return { clearPattern, uploadPattern, pattern: state.pattern, updating, canvas: state.canvas };
 };
 
 export const usePattern = () => {
