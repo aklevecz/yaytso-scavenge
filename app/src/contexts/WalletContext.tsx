@@ -15,6 +15,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import { fetchUserYaytsos } from "./services";
 import { ipfsLink } from "../utils";
+import { CHAIN_ID } from "./ContractContext";
 
 declare global {
   interface Window {
@@ -24,13 +25,13 @@ declare global {
 
 type Action =
   | {
-    type: "INIT_WALLET";
-    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
-    signer: ethers.Signer;
-    address: string;
-    chainId: number;
-    walletType: WalletTypes;
-  }
+      type: "INIT_WALLET";
+      provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+      signer: ethers.Signer;
+      address: string;
+      chainId: number;
+      walletType: WalletTypes;
+    }
   | { type: "DISCONNECT" }
   // | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
@@ -62,12 +63,12 @@ const initialState = {
 
 const WalletContext = createContext<
   | {
-    state: State;
-    dispatch: Dispatch;
-    initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
-    disconnect(): void;
-    updateYaytsos: () => void;
-  }
+      state: State;
+      dispatch: Dispatch;
+      initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
+      disconnect(): void;
+      updateYaytsos: () => void;
+    }
   | undefined
 >(undefined);
 
@@ -223,12 +224,15 @@ export const useYaytsoSVGs = () => {
   // REFACTOR
   useEffect(() => {
     if (yaytsoCIDS.length === 0) {
-      setFetching(false)
-      return
+      setFetching(false);
+      return;
     }
     const svgMap: any[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
-      svgMap.push({ nft: state.yaytsoMeta[i].nft, name: state.yaytsoMeta[i].name });
+      svgMap.push({
+        nft: state.yaytsoMeta[i].nft,
+        name: state.yaytsoMeta[i].name,
+      });
       return fetch(ipfsLink(yaytsoCID.svgCID)).then((r) => r.text());
     });
     Promise.all(svgPromises).then((svgs) => {
@@ -284,20 +288,21 @@ export const useMetaMask = () => {
   useEffect(() => {
     if (window.ethereum) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      provider.listAccounts().then(accounts => {
+      provider.listAccounts().then((accounts) => {
         if (accounts.length > 0) {
-          web3WindowConnect()
+          web3WindowConnect();
         }
-      })
+      });
     }
-  }, [])
+  }, []);
 
   return { metamaskConnect, isConnected: state.connected };
 };
 
 export const useWalletConnect = () => {
   const context = useContext(WalletContext);
-  const [walletConnectProvider, setWalletConnectProvider] = useState<WalletConnectProvider | null>(null);
+  const [walletConnectProvider, setWalletConnectProvider] =
+    useState<WalletConnectProvider | null>(null);
   if (context === undefined) {
     throw new Error("Wallet Context error in WalletConnect hook");
   }
@@ -305,12 +310,12 @@ export const useWalletConnect = () => {
   const { dispatch, state, initWallet } = context;
 
   const startProvider = useCallback(async () => {
-    console.log("STARTING PROVIDER")
+    console.log("STARTING PROVIDER");
     const walletConnectProvider = new WalletConnectProvider({
       infuraId: process.env.REACT_APP_INFURA_KEY,
-      chainId: process.env.NODE_ENV === "development" ? 4 : 1,
-    })
-    setWalletConnectProvider(walletConnectProvider)
+      chainId: CHAIN_ID,
+    });
+    setWalletConnectProvider(walletConnectProvider);
     await walletConnectProvider.enable().catch(console.log);
     const provider = new ethers.providers.Web3Provider(walletConnectProvider);
     const address = (await provider.listAccounts())[0];
@@ -343,10 +348,14 @@ export const useWalletConnect = () => {
     if (hasWallet && JSON.parse(hasWallet).connected) {
       startProvider();
     }
-  }, [walletConnectProvider, startProvider]);
+  }, []);
 
   useEffect(() => {
-    if (walletConnectProvider && !state.connected && walletConnectProvider.connected) {
+    if (
+      walletConnectProvider &&
+      !state.connected &&
+      walletConnectProvider.connected
+    ) {
       walletConnectProvider.disconnect();
     }
   }, [state.connected]);

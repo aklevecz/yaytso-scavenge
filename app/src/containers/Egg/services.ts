@@ -8,7 +8,7 @@ import axios from "axios";
 
 export const PIN_URL =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:8082"
+    ? "http://192.168.1.4:8082"
     : "https://pin.yaytso.art";
 
 export const pinBlobs = (data: FormData) => {

@@ -12,7 +12,6 @@ import { WalletTypes } from "../../contexts/types";
 import { motion, useViewportScroll, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
 
-
 export default function Wallet() {
   const { wallet, disconnect } = useWallet();
   const user = useUser();
@@ -20,8 +19,8 @@ export default function Wallet() {
   const { startProvider } = useWalletConnect();
 
   const { scrollYProgress, scrollY } = useViewportScroll();
-  const marginLeft = useTransform(scrollY, [0, 100], [10, 1000])
-  const marginTop = useTransform(scrollY, [0, 100], [0, -230])
+  const marginLeft = useTransform(scrollY, [0, 100], [10, 1000]);
+  const marginTop = useTransform(scrollY, [0, 100], [0, -230]);
 
   return (
     <div className="wallet__root">
@@ -48,16 +47,19 @@ export default function Wallet() {
             <div style={{ padding: 10, textAlign: "center" }}>
               {user.uid && <LogoutButton size="xs" />}
             </div>
-          </div>       {!isConnected && (
+          </div>
+          {!isConnected && (
             <div
               className="wallet__connect-container"
               style={{ textAlign: "center", margin: 20 }}
             >
-              <Button
-                name="Connect Metamask"
-                size="flex2"
-                onClick={metamaskConnect}
-              />
+              {window.ethereum && (
+                <Button
+                  name="Connect Metamask"
+                  size="flex2"
+                  onClick={metamaskConnect}
+                />
+              )}
 
               <Button name="Connect WC" size="flex2" onClick={startProvider} />
             </div>
@@ -79,7 +81,9 @@ export default function Wallet() {
                 fontWeight: "bold",
               }}
             >
-              <div style={{ marginBottom: 20, fontSize: "1.3rem", width: "80%" }}>
+              <div
+                style={{ marginBottom: 20, fontSize: "1.3rem", width: "80%" }}
+              >
                 You must login to view your collection!
               </div>
               <LoginButton />

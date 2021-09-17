@@ -20,9 +20,8 @@ const CARTON_MAIN_ADDRESS = "0x7c05cf1a1608eE23652014FB12Cb614F3325CFB5";
 const YAYTSO_RINKEBY_ADDRESS = "0x6fE0E0672C967dA6F7927150b9f8CEb028021cFf";
 const CARTON_RINKEBY_ADDRESS = "0x8b401BEe910bd2B810715Ca459434A884C266324";
 
-const NETWORK =
-  process.env.NODE_ENV === "development" ? "rinkeby" : "homestead";
-
+const NETWORK = process.env.NODE_ENV === "development" ? "rinkeby" : "rinkeby";
+export const CHAIN_ID = NETWORK === "rinkeby" ? 4 : 1;
 const YAYTSO_ADDRESS =
   NETWORK === "rinkeby" ? YAYTSO_RINKEBY_ADDRESS : YAYTSO_MAIN_ADDRESS;
 
@@ -50,10 +49,10 @@ const provider =
   false
     ? new ethers.providers.JsonRpcProvider()
     : ethers.providers.getDefaultProvider(NETWORK, {
-      infura: process.env.REACT_APP_INFURA_KEY,
-      alchemy: process.env.REACT_APP_ALCHEMY_KEY,
-      etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
-    });
+        infura: process.env.REACT_APP_INFURA_KEY,
+        alchemy: process.env.REACT_APP_ALCHEMY_KEY,
+        etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
+      });
 
 const initialState = {
   yaytsoContract: undefined,
@@ -139,7 +138,7 @@ export enum TxStates {
 
 export const useYaytsoContract = () => {
   const [txState, setTxState] = useState<TxStates>(TxStates.Idle);
-  const [receipt, setReceipt] = useState({})
+  const [receipt, setReceipt] = useState({});
   const context = useContext(ContractContext);
   const { wallet } = useWallet();
   if (context === undefined) {
@@ -186,29 +185,38 @@ export const useYaytsoContract = () => {
       .layYaytso(address, patternHash, metaCID)
       .catch((error: any) => {
         if (error.toString().includes("no dupes")) {
-          return { error: true, message: "Sorry but there can be no duplicate Yaytsos!" }
+          return {
+            error: true,
+            message: "Sorry but there can be no duplicate Yaytsos!",
+          };
         }
       });
 
     if (tx.error) {
-      setTxState(TxStates.Failed)
-      return tx
+      setTxState(TxStates.Failed);
+      return tx;
     }
     setTxState(TxStates.Minting);
     const receipt = await tx.wait();
     for (const event of receipt.events) {
       if (event.event === "YaytsoLaid") {
-        const { transactionHash, blockNumber } = receipt
+        const { transactionHash, blockNumber } = receipt;
         const { data } = event;
-        const tokenId = Number(data)
-        setReceipt({ metaCID, svg: wallet.yaytsoSVGs[index], transactionHash, blockNumber, tokenId })
+        const tokenId = Number(data);
+        setReceipt({
+          metaCID,
+          svg: wallet.yaytsoSVGs[index],
+          transactionHash,
+          blockNumber,
+          tokenId,
+        });
         setTxState(TxStates.Completed);
         updateYaytso(metaCID, { nft: true });
       } else {
         // setTxState(TxStates.Failed);
       }
     }
-    return { success: true }
+    return { success: true };
   };
 
   const reset = () => setTxState(TxStates.Idle);
@@ -220,6 +228,6 @@ export const useYaytsoContract = () => {
     layYaytso,
     txState,
     reset,
-    receipt
+    receipt,
   };
 };
