@@ -25,13 +25,13 @@ declare global {
 
 type Action =
   | {
-      type: "INIT_WALLET";
-      provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
-      signer: ethers.Signer;
-      address: string;
-      chainId: number;
-      walletType: WalletTypes;
-    }
+    type: "INIT_WALLET";
+    provider: ethers.providers.Web3Provider | ethers.providers.BaseProvider;
+    signer: ethers.Signer;
+    address: string;
+    chainId: number;
+    walletType: WalletTypes;
+  }
   | { type: "DISCONNECT" }
   // | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
@@ -56,6 +56,7 @@ const initialState = {
   signer: undefined,
   address: "",
   chainId: undefined,
+  metaFetched: false,
   yaytsoMeta: [],
   yaytsoCIDS: [],
   yaytsoSVGs: [],
@@ -63,12 +64,12 @@ const initialState = {
 
 const WalletContext = createContext<
   | {
-      state: State;
-      dispatch: Dispatch;
-      initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
-      disconnect(): void;
-      updateYaytsos: () => void;
-    }
+    state: State;
+    dispatch: Dispatch;
+    initWallet({ provider, signer, address, chainId, walletType }: Eth): void;
+    disconnect(): void;
+    updateYaytsos: () => void;
+  }
   | undefined
 >(undefined);
 
@@ -94,7 +95,7 @@ const reducer = (state: State, action: Action) => {
     case "SET_CIDS":
       return { ...state, yaytsoCIDS: action.yaytsoCIDS };
     case "SET_META":
-      return { ...state, yaytsoMeta: action.yaytsoMeta };
+      return { ...state, yaytsoMeta: action.yaytsoMeta, metaFetched: true };
     case "SET_SVGs":
       return { ...state, yaytsoSVGs: action.yaytsoSVGs };
     case "DISCONNECT":
@@ -163,17 +164,17 @@ const WalletProvider = ({
           nft,
         } = data.data();
         yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
-        yaytsoMeta.push({ name, description, patternHash, image: "", nft });
+        yaytsoMeta.push({ name, description, patternHash, image: "", nft, svgCID });
       });
       dispatch({ type: "SET_META", yaytsoMeta });
       dispatch({ type: "SET_CIDS", yaytsoCIDS });
     });
 
-  useEffect(() => {
-    if (user) {
-      updateYaytsos();
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     updateYaytsos();
+  //   }
+  // }, [user]);
 
   const value = { state, dispatch, initWallet, disconnect, updateYaytsos };
   return (
@@ -215,9 +216,10 @@ export const useYaytsoSVGs = () => {
 
   const { dispatch, state, updateYaytsos } = context;
 
-  const { yaytsoCIDS } = state;
+  const { yaytsoCIDS, yaytsoMeta, metaFetched } = state;
 
   useEffect(() => {
+    console.log("updating")
     updateYaytsos();
   }, []);
 
@@ -230,8 +232,8 @@ export const useYaytsoSVGs = () => {
     const svgMap: any[] = [];
     const svgPromises = yaytsoCIDS.map((yaytsoCID, i) => {
       svgMap.push({
-        nft: state.yaytsoMeta[i].nft,
-        name: state.yaytsoMeta[i].name,
+        nft: yaytsoMeta[i].nft,
+        name: yaytsoMeta[i].name,
       });
       return fetch(ipfsLink(yaytsoCID.svgCID)).then((r) => r.text());
     });
@@ -242,7 +244,7 @@ export const useYaytsoSVGs = () => {
     });
   }, [yaytsoCIDS]);
 
-  return { svgs: state.yaytsoSVGs, fetching, svgToNFT };
+  return { svgs: state.yaytsoSVGs, fetching, svgToNFT, yaytsoMeta, metaFetched };
 };
 
 export const useMetaMask = () => {

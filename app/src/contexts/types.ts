@@ -42,6 +42,7 @@ export type YaytsoMeta = {
   patternHash: string;
   image: string;
   nft: boolean;
+  svgCID: string;
 };
 
 export type YaytsoCID = {
@@ -80,6 +81,7 @@ export type WalletState = {
   signer: ethers.Signer | undefined;
   address: string;
   chainId: number | undefined;
+  metaFetched: boolean;
   yaytsoMeta: YaytsoMeta[];
   yaytsoCIDS: YaytsoCID[];
   yaytsoSVGs: string[];

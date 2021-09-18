@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { NAV_CLASS_NAME } from "../../constants";
 
 const dim = 25
 
@@ -24,7 +25,7 @@ export default function Nav() {
   const location = useLocation();
 
   return (
-    <div className="nav">
+    <div className={NAV_CLASS_NAME}>
       {links.map((link) => (
         <Link
           className={location.pathname === link.path ? "active" : ""}
