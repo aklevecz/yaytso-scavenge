@@ -10,10 +10,13 @@ import {
 import { BiAnim } from "./Transitions";
 
 import smiler from "../../assets/smiler.svg"
+import Pen from "../../components/icons/Pen"
+import Gear from "../../components/icons/Gear"
 
 import "../../styles/mint.css"
 import { IPFS_URL } from "../../constants";
 import { ipfsLink } from "../../utils";
+import { useUpdateYaytsos } from "../../contexts/WalletContext";
 
 const Recipient = () => {
   return (
@@ -32,10 +35,35 @@ const Confirmation = () => {
   );
 };
 
-const Minting = ({ status }: { status: string }) => {
+const txStates = [
+  "",
+  "Waiting for signature",
+  "Minting...",
+  "Completed!",
+  "Failed!",
+];
+
+const txIcons = [
+  "",
+  <Pen />,
+  <Gear />
+]
+
+const txAnimations = [
+  "",
+  "pulse-infinite",
+  "spin-infinite"
+]
+
+const Minting = ({ state }: { state: TxStates }) => {
+
+  const status = txStates[state]
+  const icon = txIcons[state]
+  const className = txAnimations[state]
   return (
-    <div style={{ padding: "20px 0" }}>
-      {status}
+    <div style={{ padding: "20px 0", flex: "1 0 100%" }}>
+      <div style={{ textAlign: "center" }}>{status}</div>
+      <div className={className} style={{ margin: "30px 40px 0px 40px" }}>{icon}</div>
     </div>
   )
 }
@@ -73,18 +101,11 @@ export default function Mint() {
   const { modalState, toggleModal } = useModalToggle();
   const open = useModalOpen();
   const { layYaytso, reset, txState, checkYaytsoDupe, receipt } = useYaytsoContract();
+  const { updateYaytsos } = useUpdateYaytsos();
   const { data } = useModalData();
   const [step, setStep] = useState(Step.Confirmation);
 
   const [error, setError] = useState("")
-
-  const txStates = [
-    "",
-    "Waiting for signature",
-    "Minting...",
-    "Completed!",
-    "Failed!",
-  ];
 
   // REFACTOR
   useEffect(() => {
@@ -112,6 +133,8 @@ export default function Mint() {
     if (response.error) {
       setStep(Step.Error)
       setError(response.message)
+    } else {
+      updateYaytsos();
     }
   };
 
@@ -122,7 +145,7 @@ export default function Mint() {
         <div className="modal__block">
           {step === Step.Recipient && <Recipient />}
           {step === Step.Confirmation && <Confirmation />}
-          {step === Step.Minting && txState && < Minting status={txStates[txState]} />}
+          {step === Step.Minting && txState && < Minting state={txState} />}
           {step === Step.Completed && <Receipt receipt={receipt} />}
           {step === Step.Error && <Error message={error} />}
         </div>

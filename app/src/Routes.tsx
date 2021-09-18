@@ -2,7 +2,8 @@ import { useEffect } from "react"
 import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
 import Map from "./containers/Map";
 import Wallet from "./containers/Wallet";
-import Egg from "./containers/Egg";
+import EggCreation from "./containers/EggCreation";
+import Egg from "./containers/Egg"
 import { ThreeProvider } from "./contexts/ThreeContext";
 import { PatternProvider } from "./contexts/PatternContext";
 import Nav from "./components/Nav";
@@ -28,6 +29,11 @@ const AppComponents = () => {
 
   return (
     <Switch>
+      <Route path="/egg/:eggId">
+        <ThreeProvider>
+          <Egg />
+        </ThreeProvider>
+      </Route>
       <Route path="/wallet">
         <Wallet />
       </Route>
@@ -35,7 +41,7 @@ const AppComponents = () => {
       <Route path="/">
         <PatternProvider>
           <ThreeProvider>
-            <Egg />
+            <EggCreation />
           </ThreeProvider>
         </PatternProvider>
       </Route>

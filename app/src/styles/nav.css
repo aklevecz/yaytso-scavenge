@@ -8,11 +8,11 @@
 .nav a {
   color: #ffffff;
   text-decoration: none;
-  padding: 8px;
+  /* padding: 8px; */
   transition: color 1s, background 1s, border-bottom 1s;
-  font-size: 1.1rem;
+  /* font-size: 1.1rem; */
   /* font-weight: bold; */
-  width: 100px;
+  /* width: 100px; */
   flex-grow: 1;
   background-color: black;
 }

@@ -137,6 +137,7 @@
   font-size: 24px;
   display: flex;
   justify-content: center;
+  /* margin-top: -80px; */
 }
 
 .modal__block.columns {
@@ -200,12 +201,29 @@
   font-size: 1.3rem;
 }
 
+.pulse-infinite {
+  animation: in 2000ms infinite alternate ease-in-out;
+}
+
+.spin-infinite {
+  animation: spin 1000ms infinite ease-in-out;
+}
+
 @keyframes in {
   0% {
     opacity: 0%;
   }
   100% {
     opacity: 100%;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 

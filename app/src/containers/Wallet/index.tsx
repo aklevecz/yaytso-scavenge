@@ -19,8 +19,8 @@ export default function Wallet() {
   const { startProvider } = useWalletConnect();
 
   const { scrollYProgress, scrollY } = useViewportScroll();
-  const marginLeft = useTransform(scrollY, [0, 100], [10, 1000]);
-  const marginTop = useTransform(scrollY, [0, 100], [0, -230]);
+  const marginLeft = useTransform(scrollY, [0, 50], [10, window.innerWidth + 200]);
+  const marginTop = useTransform(scrollY, [0, 250], [0, -230]);
 
   return (
     <div className="wallet__root">

@@ -49,10 +49,10 @@ const provider =
   false
     ? new ethers.providers.JsonRpcProvider()
     : ethers.providers.getDefaultProvider(NETWORK, {
-        infura: process.env.REACT_APP_INFURA_KEY,
-        alchemy: process.env.REACT_APP_ALCHEMY_KEY,
-        etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
-      });
+      infura: process.env.REACT_APP_INFURA_KEY,
+      alchemy: process.env.REACT_APP_ALCHEMY_KEY,
+      etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
+    });
 
 const initialState = {
   yaytsoContract: undefined,

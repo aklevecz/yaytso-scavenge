@@ -1,6 +1,6 @@
 .egg__container {
   display: grid;
-  grid-template-rows: 1fr 20%;
+  grid-template-rows: 1fr 13%;
   height: 100%;
   flex: 1 0 100%;
   position: relative;

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { NAV_CLASS_NAME } from "../../constants";
 
-const dim = 25
+const dim = 15
 
 const links = [
   {

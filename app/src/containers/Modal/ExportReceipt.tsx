@@ -5,7 +5,7 @@ import EggMask from "../../components/Mask/Egg";
 import TagText from "../../components/Text/Tag";
 import { useModalToggle, useModalData } from "../../contexts/ModalContext";
 import { createEggMask } from "../../contexts/utils";
-import { EGGVG } from "../Egg/constants";
+import { EGGVG } from "../EggCreation/constants";
 
 
 export default function ExportReceipt() {

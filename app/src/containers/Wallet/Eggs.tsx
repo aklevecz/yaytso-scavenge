@@ -29,7 +29,6 @@ export default function Eggs({ wallet }: Props) {
       </div>
     );
   }
-  console.log(yaytsoMeta, metaFetched)
   return (
     <Fragment>
       <div className="wallet__title" style={{ display: "flex", justifyContent: "center" }}><TagText fontSize="2rem" padding={"10px 20px"}>YOUR YAYTSOS</TagText></div>

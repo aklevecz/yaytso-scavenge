@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { CanvasTexture, RepeatWrapping } from "three";
-import { PREVIEW_CANVAS_ID } from "../containers/Egg/constants";
 import {
   createCanvas,
   createCanvasCropped,
@@ -91,7 +90,7 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
   const context = useContext(PatternContext);
 
   if (context === undefined) {
-    throw new Error("must be within its provider: User");
+    throw new Error("must be within its provider: Pattern");
   }
 
   const { dispatch, state } = context;
@@ -136,7 +135,7 @@ export const usePattern = () => {
   const context = useContext(PatternContext);
 
   if (context === undefined) {
-    throw new Error("must be within its provider: User");
+    throw new Error("must be within its provider: Pattern");
   }
 
   const { state } = context;
@@ -148,7 +147,7 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
   const context = useContext(PatternContext);
 
   if (context === undefined) {
-    throw new Error("must be within its provider: User");
+    throw new Error("must be within its provider: Pattern");
   }
 
   const { dispatch, state } = context;

@@ -112,6 +112,7 @@ const ThreeProvider = ({
       const loader = new GLTFLoader();
       loader.load(path, (object: GLTF) => {
         object.scene.scale.set(0.1, 0.1, 0.1);
+        object.scene.position.y -= .017;
         // This could be removed and they could just be loaded first
         scene.add(object.scene);
         dispatch({
@@ -200,6 +201,7 @@ export const useThreeScene = () => {
       container.appendChild(domElement);
 
       return () => {
+        console.log("cleant up")
         domElement.remove();
       };
     },

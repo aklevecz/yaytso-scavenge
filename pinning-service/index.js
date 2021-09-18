@@ -2,10 +2,18 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
 const fs = require("fs");
 const express = require("express");
+const ethers = require("ethers");
 const cors = require("cors");
 const multer = require("multer");
 const CID = require("cids");
 const upload = multer();
+const admin = require("firebase-admin");
+
+const serviceAccount = require(path.resolve(
+  __dirname,
+  "./firebase-admin.json"
+));
+
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
@@ -31,6 +39,16 @@ const apiKey = process.env.NFT_STORAGE_TOKEN;
 const metadataFile = fs.readFileSync("metadataTemplate.json");
 const dev = process.env.NODE_ENV === "dev";
 
+if (dev) {
+  process.env.FIRESTORE_EMULATOR_HOST = "localhost:8081";
+}
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+
 (async () => {
   const client = dev ? await IPFS.create() : new NFTStorage({ token: apiKey });
 
@@ -51,7 +69,7 @@ const dev = process.env.NODE_ENV === "dev";
   });
 
   app.post("/", upload.any(), async (req, res) => {
-    const { name, desc } = req.body;
+    const { name, desc, uid } = req.body;
     console.log(name, desc);
     const gltf = req.files[0];
     const svg = req.files[1];
@@ -77,7 +95,36 @@ const dev = process.env.NODE_ENV === "dev";
 
     const sliceAmt = dev ? 2 : 4;
     const byteArray = new CID(svgCID).bytes.slice(sliceAmt);
-    return res.send({ metaCID, svgCID, gltfCID, byteArray, success: true });
+
+    var arr = [];
+    for (var p in Object.getOwnPropertyNames(byteArray)) {
+      arr[p] = byteArray[p];
+    }
+    const patternHash = ethers.utils.hexlify(arr);
+
+    if (uid) {
+      console.log("chooper");
+      db.collection("YAYTSOS")
+        .doc(metaCID + "_test")
+        .set({
+          name,
+          description: desc,
+          patternHash,
+          metaCID,
+          svgCID,
+          gltfCID,
+          nft: false,
+        });
+    }
+
+    return res.send({
+      uid,
+      metaCID,
+      svgCID,
+      gltfCID,
+      byteArray,
+      success: true,
+    });
   });
 
   const port = process.env.PORT || 8082;

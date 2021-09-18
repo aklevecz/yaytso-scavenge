@@ -364,3 +364,12 @@ export const useWalletConnect = () => {
 
   return { startProvider };
 };
+
+export const useUpdateYaytsos = () => {
+  const context = useContext(WalletContext);
+  if (context === undefined) {
+    throw new Error("Wallet Context error in YaytsoSVGs hook");
+  }
+  const { updateYaytsos } = context;
+  return { updateYaytsos }
+}
