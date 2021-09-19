@@ -1,17 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { createContext, useContext, useReducer } from "react";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from "three";
 import { useCallback } from "react";
 
-import yaytso from "../assets/yaytso2.gltf";
+import yaytso from "../assets/yaytso.gltf";
 import { usePattern } from "./PatternContext";
 import { CanvasTexture } from "three";
-import { getFullContainerHeight } from "./utils";
-import { fetchYaytso, subscribeToYaytso } from "./services";
-import { ipfsLink } from "../utils";
-import { YaytsoMetaWeb2 } from "./types";
 
 type LoadedObject = THREE.Mesh | THREE.Group | GLTF;
 
@@ -67,7 +63,7 @@ const initialState = {
 };
 
 const ThreeContext = createContext<
-  { state: State; dispatch: Dispatch; loadGLTF: (path: string, scene: THREE.Scene, scale?: number) => void } | undefined
+  { state: State; dispatch: Dispatch } | undefined
 >(undefined);
 
 const reducer = (state: State, action: Action) => {
@@ -112,20 +108,11 @@ const ThreeProvider = ({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const loadGLTF = useCallback(
-    (path: string, scene: THREE.Scene, scale = 1) => {
+    (path: string, scene: THREE.Scene) => {
       const loader = new GLTFLoader();
       loader.load(path, (object: GLTF) => {
-        // object.scene.scale.set(0.1, 0.1, 0.1);
-        object.scene.scale.set(scale, scale, scale);
-        object.scene.position.y -= .0;
-        const model = (object as GLTF).scene;
-        model.traverse((o: any) => {
-          if (o.isMesh) {
-            const egg = o;
-            const eggMaterial = egg.material as THREE.MeshBasicMaterial;
-            eggMaterial.needsUpdate = true;
-          }
-        })
+        object.scene.scale.set(0.1, 0.1, 0.1);
+        object.scene.position.y -= .017;
         // This could be removed and they could just be loaded first
         scene.add(object.scene);
         dispatch({
@@ -137,15 +124,14 @@ const ThreeProvider = ({
     [dispatch]
   );
 
+  useEffect(() => {
+    if (!state.scene) {
+      return;
+    }
+    loadGLTF(yaytso, state.scene);
+  }, [state.scene, loadGLTF]);
 
-  // useEffect(() => {
-  //   if (!state.scene) {
-  //     return;
-  //   }
-  //   loadGLTF(yaytso, state.scene);
-  // }, [state.scene, loadGLTF]);
-
-  const value = { state, dispatch, loadGLTF };
+  const value = { state, dispatch };
   return (
     <ThreeContext.Provider value={value}>{children}</ThreeContext.Provider>
   );
@@ -153,12 +139,10 @@ const ThreeProvider = ({
 
 export { ThreeContext, ThreeProvider };
 
-// This could probably be moved to the provider
-// TODO: Maybe make scene loaded explicit state
 export const useThreeScene = () => {
-  let previousRAF = useRef(0);
-  let frame = useRef(0)
-  let stop = useRef(false)
+  // const [previousRAF, setPreviousRAF] = useState(0);
+  const pattern = usePattern();
+  let previousRAF = useRef(0).current;
   const context = useContext(ThreeContext);
   if (context === undefined) {
     throw new Error("Three Context error in ThreeScene hook");
@@ -166,19 +150,36 @@ export const useThreeScene = () => {
 
   const { dispatch, state } = context;
 
+  // TODO: this should be in a hook for the particular thing it needs to pattern
+  // I guess in the context of this app it doesnt matter, because the upload function only does one thing
+  useEffect(() => {
+    const object = state.entities.find(
+      (entity: Entity) => entity.name === "egg"
+    );
+    if (!object) {
+      return console.log("egg is either not loaded or missing")
+    }
+    const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
+    const eggMaterial = egg.material as THREE.MeshBasicMaterial;
+    if (pattern) {
+      eggMaterial.map = pattern;
+      eggMaterial.color = new THREE.Color(1, 1, 1);
+    } else {
+      eggMaterial.map = null;
+    }
+    eggMaterial.needsUpdate = true;
+  }, [pattern, state.entities]);
+
   const initScene = useCallback(
-    (container: HTMLDivElement, encoding?: boolean) => {
+    (container: HTMLDivElement) => {
       const renderer = new THREE.WebGLRenderer({ alpha: true });
-      const { width } = container.getBoundingClientRect();
-      // REFACTOR
-      const heightScalar = encoding ? 1 : .87;
-      const height = getFullContainerHeight() * heightScalar
+      const { width, height } = container.getBoundingClientRect();
       const windowAspect = width / height;
       renderer.setSize(width * 0.8, height * 0.8);
       renderer.setClearColor(0xffffff, 0);
       renderer.setPixelRatio(window.devicePixelRatio);
-      // WTF is with this shit
-      if (encoding) renderer.outputEncoding = THREE.sRGBEncoding;
+      // renderer.physicallyCorrectLights = true;
+      renderer.outputEncoding = THREE.sRGBEncoding;
       const domElement = renderer.domElement;
 
       const scene = new THREE.Scene();
@@ -195,20 +196,13 @@ export const useThreeScene = () => {
       const ambient = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambient);
 
-      // const hemiLight = new THREE.HemisphereLight(0xffffff, 0x080820, 0.6);
-      // scene.add(hemiLight);
-
-      // const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-      // scene.add(ambientLight);
-
-
       dispatch({ type: "INIT", renderer, scene, camera, domElement, controls });
 
       container.appendChild(domElement);
 
       return () => {
+        console.log("cleant up")
         domElement.remove();
-        stop.current = true;
       };
     },
     [dispatch]
@@ -222,7 +216,7 @@ export const useThreeScene = () => {
   };
 
   const RAF = () => {
-    frame.current = requestAnimationFrame((t) => {
+    requestAnimationFrame((t) => {
       if (state.renderer === undefined) {
         return console.log("no renderer");
       }
@@ -233,15 +227,14 @@ export const useThreeScene = () => {
         return console.log("no camera");
       }
       if (state.sceneLoaded) {
-        const _previousRAF = previousRAF.current ? previousRAF.current : t;
+        const _previousRAF = previousRAF ? previousRAF : t;
         step(t - _previousRAF);
         state.renderer.render(state.scene, state.camera);
         state.controls && state.controls.update();
-        previousRAF.current = _previousRAF;
+        previousRAF = _previousRAF;
         // setPreviousRAF(_previousRAF);
       }
-      // RAF()
-      !stop.current && setTimeout(() => RAF(), 1);
+      setTimeout(() => RAF(), 1);
     });
   };
 
@@ -250,86 +243,9 @@ export const useThreeScene = () => {
       RAF();
     }
 
-    return () => {
-      cancelAnimationFrame(frame.current)
-    };
+    return () => cancelAnimationFrame(previousRAF ? previousRAF : 0);
     //eslint-disable-next-line
   }, [state.renderer]);
 
   return { initScene, RAF, scene: state.scene };
 };
-
-export const useThreePatternUpdater = () => {
-  const pattern = usePattern();
-  const context = useContext(ThreeContext);
-  if (context === undefined) {
-    throw new Error("Three Context error in ThreeScene hook");
-  }
-  const { state, loadGLTF } = context;
-
-  const loadBlankYaytso = () => state.scene && loadGLTF(yaytso, state.scene)
-
-  useEffect(() => {
-    const object = state.entities.find(
-      (entity: Entity) => entity.name === "egg"
-    );
-    if (!object) {
-      return console.log("egg is either not loaded or missing")
-    }
-    const model = (object.object as GLTF).scene;
-    model.traverse((o: any) => {
-      if (o.isMesh) {
-        const egg = o;
-        const eggMaterial = egg.material as THREE.MeshBasicMaterial;
-        if (pattern) {
-          eggMaterial.map = pattern;
-          // eggMaterial.color = new THREE.Color(1, 1, 1);
-        } else {
-          eggMaterial.map = null;
-        }
-        eggMaterial.needsUpdate = true;
-      }
-    })
-    // const egg = (object.object as GLTF).scene.children[0] as THREE.Mesh;
-    // const eggMaterial = egg.material as THREE.MeshBasicMaterial;
-    // if (pattern) {
-    //   eggMaterial.map = pattern;
-    //   eggMaterial.color = new THREE.Color(1, 1, 1);
-    // } else {
-    //   eggMaterial.map = null;
-    // }
-    // eggMaterial.needsUpdate = true;
-  }, [pattern, state.entities]);
-
-  useEffect(() => {
-    loadBlankYaytso()
-  }, [state.scene])
-
-}
-
-export const useFetchedYaytso = (metaCID: string) => {
-  const context = useContext(ThreeContext);
-  const [metadata, setMetadata] = useState<YaytsoMetaWeb2 | null>(null)
-  if (context === undefined) {
-    throw new Error("Three Context error in ThreeScene hook");
-  }
-  const { state, loadGLTF } = context;
-
-  // This probably does not belong here
-  useEffect(() => {
-    const unsub = subscribeToYaytso(metaCID, (metadata) => setMetadata(metadata))
-
-    return () => {
-      unsub();
-    }
-  }, [])
-
-  useEffect(() => {
-    if (state.scene && metadata) {
-      const gltfUrl = ipfsLink(metadata.gltfCID);
-      loadGLTF(gltfUrl, state.scene)
-    }
-  }, [state.scene, metadata])
-
-  return metadata;
-}

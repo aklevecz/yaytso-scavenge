@@ -8,6 +8,7 @@ export enum ModalTypes {
   Login = "login",
   Mint = "mint",
   ExportReceipt = "exportReceipt",
+  EggInfo = "eggInfo",
 }
 
 export type Position = {
@@ -43,6 +44,17 @@ export type YaytsoMeta = {
   image: string;
   nft: boolean;
   svgCID: string;
+};
+
+export type YaytsoMetaWeb2 = {
+  description: string;
+  gltfCID: string;
+  metaCID: string;
+  name: string;
+  nft: boolean;
+  patternHash: string;
+  svgCID: string;
+  uid: string;
 };
 
 export type YaytsoCID = {
@@ -82,7 +94,7 @@ export type WalletState = {
   address: string;
   chainId: number | undefined;
   metaFetched: boolean;
-  yaytsoMeta: YaytsoMeta[];
+  yaytsoMeta: YaytsoMetaWeb2[];
   yaytsoCIDS: YaytsoCID[];
   yaytsoSVGs: string[];
 };

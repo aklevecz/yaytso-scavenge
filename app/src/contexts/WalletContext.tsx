@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { IPFS_URL } from "../constants";
-import { Eth, WalletState, WalletTypes, YaytsoCID, YaytsoMeta } from "./types";
+import { Eth, WalletState, WalletTypes, YaytsoCID, YaytsoMeta, YaytsoMetaWeb2 } from "./types";
 import { useUser } from "./UserContext";
 import { Web3WindowApi } from "./Web3WindowApi";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -35,7 +35,7 @@ type Action =
   | { type: "DISCONNECT" }
   // | { type: "createWallet"; wallet: ethers.Wallet }
   | { type: "SET_CIDS"; yaytsoCIDS: YaytsoCID[] }
-  | { type: "SET_META"; yaytsoMeta: YaytsoMeta[] }
+  | { type: "SET_META"; yaytsoMeta: YaytsoMetaWeb2[] }
   | { type: "SET_SVGs"; yaytsoSVGs: string[] };
 
 type Dispatch = (action: Action) => void;
@@ -152,7 +152,7 @@ const WalletProvider = ({
   const updateYaytsos = () =>
     fetchUserYaytsos(user.uid).then((snapshot) => {
       let yaytsoCIDS: YaytsoCID[] = [];
-      let yaytsoMeta: YaytsoMeta[] = [];
+      let yaytsoMeta: YaytsoMetaWeb2[] = [];
       snapshot.forEach((data) => {
         const {
           metaCID,
@@ -164,7 +164,7 @@ const WalletProvider = ({
           nft,
         } = data.data();
         yaytsoCIDS.push({ metaCID, svgCID, gltfCID });
-        yaytsoMeta.push({ name, description, patternHash, image: "", nft, svgCID });
+        yaytsoMeta.push({ name, description, patternHash, nft, svgCID, gltfCID, metaCID, uid: user.uid });
       });
       dispatch({ type: "SET_META", yaytsoMeta });
       dispatch({ type: "SET_CIDS", yaytsoCIDS });
@@ -219,7 +219,6 @@ export const useYaytsoSVGs = () => {
   const { yaytsoCIDS, yaytsoMeta, metaFetched } = state;
 
   useEffect(() => {
-    console.log("updating")
     updateYaytsos();
   }, []);
 

@@ -14,7 +14,7 @@ export default function Right() {
   // }, [map]);
   return (
     <div className="overlay__right">
-      <div style={{ marginRight: 10 }}>
+      <div style={{ marginRight: 30 }}>
         <button className="btn--icon" onClick={recenter}>
           <Triangulate />
         </button>

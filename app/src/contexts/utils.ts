@@ -1,4 +1,5 @@
 import { CanvasTexture, RepeatWrapping } from "three";
+import { NAV_CLASS_NAME } from "../constants";
 
 export const ipfsToHttps = (uri: string) => uri.replace("ipfs", "https");
 
@@ -132,4 +133,16 @@ export const createTexture = (
   texture.flipY = false;
   texture.repeat.set(repetitions, repetitions);
   return texture;
+};
+
+const windowHeight = window.innerHeight;
+export const getFullContainerHeight = () => {
+  // const windowHeight = window.innerHeight;
+  const navEl = document.querySelector(`.${NAV_CLASS_NAME}`) as HTMLDivElement;
+  let fullHeight = 0;
+  if (navEl) {
+    const navHeight = navEl.clientHeight;
+    fullHeight = windowHeight - navHeight;
+  }
+  return fullHeight;
 };

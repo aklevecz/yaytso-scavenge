@@ -6,12 +6,12 @@
   width: 100%;
   height: 100%;
   background: none;
-  display: flex;
   justify-content: center;
   align-items: center;
   display: none;
   color: black;
   font-size: 16px;
+  z-index: 999;
 }
 
 /* NOTE: I'm not sure that both the wrapper and content are necessary*/
@@ -21,6 +21,7 @@
   min-width: 300px;
   max-width: 500px;
   min-height: 300px;
+  max-height: 95%;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -202,7 +203,7 @@
 }
 
 .pulse-infinite {
-  animation: in 2000ms infinite alternate ease-in-out;
+  animation: in 2000ms infinite ease-in-out;
 }
 
 .spin-infinite {

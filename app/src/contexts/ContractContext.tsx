@@ -11,6 +11,7 @@ import YaytsoInterface from "../ethereum/contracts/Yaytso.sol/Yaytso.json";
 import CartonInterface from "../ethereum/contracts/Carton.sol/Carton.json";
 import { useWallet } from "./WalletContext";
 import { updateYaytso } from "./services";
+import { YaytsoMetaWeb2 } from "./types";
 
 const YAYTSO_HARDHAT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -158,11 +159,11 @@ export const useYaytsoContract = () => {
     return meta;
   };
 
-  const checkYaytsoDupe = async (yaytsoId: number) => {
+  const checkYaytsoDupe = async (patternHash: string) => {
     if (!yaytsoContract) {
       return;
     }
-    const patternHash = wallet.yaytsoMeta[yaytsoId].patternHash;
+    // const patternHash = wallet.yaytsoMeta[yaytsoId].patternHash;
     const isDupe = await yaytsoContract
       .checkDupe(patternHash)
       .catch(console.log);
@@ -172,12 +173,13 @@ export const useYaytsoContract = () => {
     console.log(isDupe);
   };
 
-  const layYaytso = async (index: number) => {
+  const layYaytso = async (meta: YaytsoMetaWeb2) => {
     if (!yaytsoContract || !signer) {
       return;
     }
-    const patternHash = wallet.yaytsoMeta[index].patternHash;
-    const metaCID = wallet.yaytsoCIDS[index].metaCID;
+    const { patternHash, metaCID, svgCID } = meta;
+    // const patternHash = wallet.yaytsoMeta[index].patternHash;
+    // const metaCID = wallet.yaytsoCIDS[index].metaCID;
     const contractSigner = yaytsoContract.connect(signer);
 
     setTxState(TxStates.Waiting);
@@ -205,7 +207,7 @@ export const useYaytsoContract = () => {
         const tokenId = Number(data);
         setReceipt({
           metaCID,
-          svg: wallet.yaytsoSVGs[index],
+          svgCID,
           transactionHash,
           blockNumber,
           tokenId,

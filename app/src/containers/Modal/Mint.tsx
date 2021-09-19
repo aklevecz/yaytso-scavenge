@@ -12,9 +12,9 @@ import { BiAnim } from "./Transitions";
 import smiler from "../../assets/smiler.svg"
 import Pen from "../../components/icons/Pen"
 import Gear from "../../components/icons/Gear"
+import Fire from "../../components/icons/Fire"
 
 import "../../styles/mint.css"
-import { IPFS_URL } from "../../constants";
 import { ipfsLink } from "../../utils";
 import { useUpdateYaytsos } from "../../contexts/WalletContext";
 
@@ -30,7 +30,8 @@ const Recipient = () => {
 const Confirmation = () => {
   return (
     <div>
-      <div>Make this egg into an NFT?</div>
+      <div style={{ textAlign: "center" }}>Mint an NFT?</div>
+      <div style={{ padding: "25px 0 10px", display: "flex", justifyContent: 'center' }}><Fire /></div>
     </div>
   );
 };
@@ -58,12 +59,12 @@ const txAnimations = [
 const Minting = ({ state }: { state: TxStates }) => {
 
   const status = txStates[state]
-  const icon = txIcons[state]
+  let icon = txIcons[state]
   const className = txAnimations[state]
   return (
-    <div style={{ padding: "20px 0", flex: "1 0 100%" }}>
+    <div>
       <div style={{ textAlign: "center" }}>{status}</div>
-      <div className={className} style={{ margin: "30px 40px 0px 40px" }}>{icon}</div>
+      <div className={""} style={{ margin: "25px 0 10px", display: 'flex', justifyContent: 'center' }}>{icon}</div>
     </div>
   )
 }
@@ -72,14 +73,14 @@ const Bold = ({ children }: { children: JSX.Element | string }) => <span style={
 
 const RINKEBY_ETHERSCAN = "https://rinkeby.etherscan.io/tx"
 const Receipt = (receipt: any) => {
-  const { metaCID, svg, transactionHash, blockNumber, tokenId } = receipt.receipt;
+  const { metaCID, svgCID, transactionHash, blockNumber, tokenId } = receipt.receipt;
   return (
     <div className="mint__receipt">
       <div className="mint__receipt__id">{tokenId}</div>
       <div><Bold>Metadata</Bold> <a className="mint__receipt__meta-cid" href={ipfsLink(metaCID)}>ipfs://{metaCID}</a></div>
       <div><Bold>Tx</Bold> <a className="mint__receipt__tx-hash" href={`${RINKEBY_ETHERSCAN}/${transactionHash}`}>{transactionHash}</a></div>
       <div><Bold>Block#</Bold><div className="mint__receipt__block-number">{blockNumber}</div></div>
-      <div className="mint__receipt__img" dangerouslySetInnerHTML={{ __html: svg }}></div>
+      <img className="mint__receipt__img" src={ipfsLink(svgCID)}></img>
     </div >
   )
 }
@@ -115,11 +116,11 @@ export default function Mint() {
     }
   }, [open]);
 
-  const { id } = data;
+  const { metadata } = data;
 
   useEffect(() => {
-    checkYaytsoDupe(id);
-  }, [id]);
+    checkYaytsoDupe(metadata.patternHash);
+  }, [metadata]);
 
   useEffect(() => {
     if (txState === TxStates.Completed) {
@@ -129,7 +130,7 @@ export default function Mint() {
 
   const lay = async () => {
     setStep(Step.Minting);
-    const response = await layYaytso(id);
+    const response = await layYaytso(metadata);
     if (response.error) {
       setStep(Step.Error)
       setError(response.message)

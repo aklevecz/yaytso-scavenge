@@ -23,7 +23,6 @@ const links = [
 
 export default function Nav() {
   const location = useLocation();
-
   return (
     <div className={NAV_CLASS_NAME}>
       {links.map((link) => (

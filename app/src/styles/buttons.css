@@ -51,6 +51,16 @@ button.btn.flex2 {
   font-size: 1.1rem;
 }
 
+button.btn.flex3 {
+  width: 100%;
+  margin: auto;
+  /* padding: 10px; */
+  /* height: 50px; */
+  max-width: 200px;
+  /* margin-bottom: 10px; */
+  font-size: 1.5rem;
+}
+
 .floating-button-container {
   position: absolute;
 }
@@ -64,4 +74,19 @@ button.btn.anti-state {
   height: 50px;
   font-weight: bold;
   color: #f55959;
+}
+
+button.info-button {
+  background: black;
+  color: white;
+  font-size: 2rem;
+  padding: 0px;
+  border-radius: 60%;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-weight: bold;
 }

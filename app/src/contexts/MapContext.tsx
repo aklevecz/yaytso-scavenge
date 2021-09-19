@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import silverMap from "../assets/silverMap.json";
+import silverMap from "../assets/whiteMap.json";
 import cartonSVG from "../assets/carton.svg";
 import cartonEmptySVG from "../assets/carton-empty.svg";
 import smilerSVG from "../assets/smiler.svg";

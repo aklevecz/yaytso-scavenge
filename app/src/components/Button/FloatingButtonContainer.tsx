@@ -2,7 +2,8 @@ type Props = {
   children: JSX.Element | JSX.Element[];
   top?: string | number;
   bottom?: string | number;
-  right: string | number;
+  right?: string | number;
+  marginRight?: string | number;
 };
 
 export default function FloatingButtonContainer({
@@ -10,9 +11,10 @@ export default function FloatingButtonContainer({
   top,
   bottom,
   right,
+  marginRight
 }: Props) {
   return (
-    <div style={{ top, bottom, right }} className="floating-button-container">
+    <div style={{ top, bottom, right, marginRight }} className="floating-button-container">
       {children}
     </div>
   );

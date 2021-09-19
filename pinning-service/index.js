@@ -103,9 +103,8 @@ const db = admin.firestore();
     const patternHash = ethers.utils.hexlify(arr);
 
     if (uid) {
-      console.log("chooper");
       db.collection("YAYTSOS")
-        .doc(metaCID + "_test")
+        .doc(metaCID)
         .set({
           name,
           description: desc,
@@ -113,6 +112,7 @@ const db = admin.firestore();
           metaCID,
           svgCID,
           gltfCID,
+          uid,
           nft: false,
         });
     }

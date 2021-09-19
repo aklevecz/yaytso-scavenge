@@ -24,12 +24,13 @@ export default function Wallet() {
 
   return (
     <div className="wallet__root">
+
       <div className="wallet__container">
         <motion.div style={{ marginLeft }} className="wallet__user-info">
           {/* <div className="wallet__user-info"> */}
           {wallet.connected && (
             <div className="wallet__address">
-              <div>{wallet.address}</div>
+              <div style={{ minWidth: 150, maxWidth: 150, margin: "auto" }}>{wallet.address}</div>
               {wallet.eth &&
                 wallet.eth.walletType === WalletTypes.WalletConnect && (
                   <Button

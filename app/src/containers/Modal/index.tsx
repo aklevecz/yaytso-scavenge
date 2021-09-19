@@ -14,6 +14,8 @@ import Login from "./Login";
 import Mint from "./Mint";
 import ChevronLeft from "../../components/icons/ChevronLeft";
 import ExportReceipt from "./ExportReceipt";
+import EggInfo from "./EggInfo"
+
 import { ModalTypes } from "../../contexts/types";
 
 const modalMap = {
@@ -29,6 +31,10 @@ const modalMap = {
     component: <ExportReceipt />,
     maxState: 0,
   },
+  eggInfo: {
+    component: <EggInfo />,
+    maxState: 0
+  }
 };
 
 export default function Modal() {
@@ -53,12 +59,12 @@ export default function Modal() {
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!modal) {
-      return;
-    }
-    setMaxModalState(modal.maxState);
-  }, [modalType, setMaxModalState, modal]);
+  // useEffect(() => {
+  //   if (!modal) {
+  //     return;
+  //   }
+  //   setMaxModalState(modal.maxState);
+  // }, [modalType, setMaxModalState, modal]);
 
   return createPortal(
     <div className={`modal__container ${display ? "open" : ""}`}>
