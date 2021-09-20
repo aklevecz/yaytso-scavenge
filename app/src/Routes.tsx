@@ -50,18 +50,6 @@ const AppComponents = () => {
 
 export default function Routes() {
   const loading = useLoading();
-  // 	const [height, setHeight] = useState(0)
-  // useEffect(() => {
-
-  // 	const windowHeight = window.innerHeight;
-  // 	const navEl = document.querySelector(`.${NAV_CLASS_NAME}`) as HTMLDivElement;
-
-  // 	if (navEl) {
-  // 		const navHeight = navEl.clientHeight;
-  // 		const fullHeight = windowHeight - navHeight
-  // 		setHeight(fullHeight);
-  // 	}
-  // }, []);
 
   return (
     <Router>

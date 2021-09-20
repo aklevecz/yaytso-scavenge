@@ -58,7 +58,7 @@ button.btn.flex3 {
   /* height: 50px; */
   max-width: 200px;
   /* margin-bottom: 10px; */
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
 .floating-button-container {
@@ -74,6 +74,11 @@ button.btn.anti-state {
   height: 50px;
   font-weight: bold;
   color: #f55959;
+}
+
+button.btn.danger {
+  background-color: #f55959;
+  border: 1px solid white;
 }
 
 button.info-button {

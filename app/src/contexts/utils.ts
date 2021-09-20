@@ -1,5 +1,6 @@
 import { CanvasTexture, RepeatWrapping } from "three";
 import { NAV_CLASS_NAME } from "../constants";
+import { REPEAT_CANVAS_ID } from "../containers/EggCreation/constants";
 
 export const ipfsToHttps = (uri: string) => uri.replace("ipfs", "https");
 
@@ -45,22 +46,22 @@ export const delay = (ms: number, callback: Function) => {
 };
 
 export const drawToPreview = (
-  imgDataURL: string,
+  img: HTMLImageElement,
   canvas: HTMLCanvasElement,
   width = 200,
   height = 200
 ) => {
-  const img = new Image();
-  img.src = imgDataURL;
-  img.onload = (e) => {
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(img, 0, 0, width, height);
-  };
+  // const img = new Image();
+  // img.src = imgDataURL;
+  // img.onload = (e) => {
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0, width, height);
+  // };
 };
 
 export const createCanvas = (
   imgDataURL: string
-): Promise<HTMLCanvasElement> => {
+): Promise<{ canvas: HTMLCanvasElement; img: HTMLImageElement }> => {
   return new Promise((resolve, __) => {
     const img = new Image();
     img.src = imgDataURL;
@@ -74,7 +75,7 @@ export const createCanvas = (
       ctx.canvas.width = width;
       ctx.canvas.height = height;
       ctx.drawImage(img, 0, 0);
-      resolve(canvas);
+      resolve({ canvas, img });
     };
   });
 };
@@ -83,7 +84,7 @@ export const createCanvasCropped = (
   imgDataURL: string,
   width: number,
   height: number
-): Promise<HTMLCanvasElement> => {
+): Promise<{ canvas: HTMLCanvasElement; img: HTMLImageElement }> => {
   return new Promise((resolve, __) => {
     const img = new Image();
     img.src = imgDataURL;
@@ -102,25 +103,45 @@ export const createCanvasCropped = (
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, left, top, imgSize, imgSize, 0, 0, width, height);
-      resolve(canvas);
+      resolve({ canvas, img });
     };
   });
 };
 
+// Could just pass this the egg mask class
 export const createEggMask = (
   eggMask: HTMLImageElement,
   copyCanvas: HTMLCanvasElement,
   width: number,
-  height: number
+  height: number,
+  repetitions: number
 ) => {
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    return null;
-  }
-  ctx.drawImage(copyCanvas, 0, 0, width, height, 0, 0, 40, 40);
+  const tinyCanvas = document.createElement("canvas");
+  const tinyCtx = tinyCanvas.getContext("2d")!;
+  const tinyWidth = width / repetitions;
+  const tinyHeight = height / repetitions;
+  tinyCtx.canvas.width = tinyWidth;
+  tinyCtx.canvas.height = tinyHeight;
+  tinyCtx.drawImage(
+    copyCanvas,
+    0,
+    0,
+    width,
+    height,
+    0,
+    0,
+    tinyWidth,
+    tinyHeight
+  );
+  const repeatCanvas = document.createElement("canvas");
+  repeatCanvas.width = width;
+  repeatCanvas.height = height;
+  const repeatCtx = repeatCanvas.getContext("2d")!;
 
-  eggMask.setAttribute("xlink:href", copyCanvas.toDataURL());
+  const rPattern = repeatCtx.createPattern(tinyCanvas, "repeat")!;
+  repeatCtx.fillStyle = rPattern;
+  repeatCtx.fillRect(0, 0, width, height);
+  eggMask.setAttribute("xlink:href", repeatCanvas.toDataURL());
 };
 
 export const createTexture = (

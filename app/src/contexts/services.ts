@@ -1,3 +1,4 @@
+// FIREBASE SERVICES
 import { db, YAYTSOS } from "../firebase";
 
 export const fetchUserYaytsos = (userId: string) => {
@@ -26,3 +27,11 @@ export const updateYaytso = (metaCID: string, params: any) => {
     .then(console.log)
     .catch(console.log);
 };
+
+export const deleteYaytso = (metaCID: string) =>
+  db
+    .collection(YAYTSOS)
+    .doc(metaCID)
+    .delete()
+    .then(() => true)
+    .catch(() => false);

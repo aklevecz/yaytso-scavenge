@@ -1,16 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Fragment } from "react";
 import { useThreeScene, useFetchedYaytso } from "../../contexts/ThreeContext";
 import { useOpenModal } from "../../contexts/ModalContext";
 import LayoutFullHeight from "../../components/Layout/FullHeight";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import Button from "../../components/Button";
 
 import "../../styles/egg-view.css";
 import { ModalTypes } from "../../contexts/types";
 import DotTyping from "../../components/Loading/DotTyping";
+import { deleteYaytso } from "../../contexts/services";
 
 export default function Egg() {
   const { eggId } = useParams<{ eggId: string }>()
+  const history = useHistory()
   const sceneContainer = useRef<HTMLDivElement | null>(null);
   const { initScene } = useThreeScene();
   const metadata = useFetchedYaytso(eggId)
@@ -34,6 +36,14 @@ export default function Egg() {
   if (!metadata) {
     return <DotTyping />
   }
+
+  const deleteEgg = () => deleteYaytso(metadata.metaCID).then(success => {
+    if (success) {
+      history.push("/wallet")
+    } else {
+      alert("Oops something went wrong!")
+    }
+  })
   return (
     <LayoutFullHeight>
       <div className="egg-view__container">
@@ -42,7 +52,7 @@ export default function Egg() {
         <div className="egg-view__canvas__container" ref={sceneContainer} style={{ alignItems: "unset", paddingTop: 27 }} />
         <div className="egg-view__description">{metadata && metadata.description}</div>
         <div className="egg-view__mint-button-container">
-          {metadata && !metadata.nft && <Button name="Mint into NFT" className="flex3" onClick={onClick} />}
+          {metadata && !metadata.nft && (<Fragment><Button name="Mint into NFT" className="flex3" onClick={onClick} /><Button name="Delete" className="flex3 danger" onClick={deleteEgg} /></Fragment>)}
           {metadata && metadata.nft && <div style={{ color: "lime", fontWeight: "bold", fontSize: "2.5rem", width: "80%", textAlign: "center", padding: 12 }}>NFT</div>}
         </div>
       </div></LayoutFullHeight>

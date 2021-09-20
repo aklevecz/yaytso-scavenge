@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { CanvasTexture, RepeatWrapping } from "three";
+import { REPEAT_CANVAS_ID } from "../containers/EggCreation/constants";
 import {
   createCanvas,
   createCanvasCropped,
@@ -22,7 +23,9 @@ type Action =
     canvas: HTMLCanvasElement;
     canvasPreview: HTMLCanvasElement;
   }
-  | { type: "CLEAR_PATTERN" };
+  | { type: "CLEAR_PATTERN" }
+  | { type: "SET_REPETITIONS"; repetitions: number }
+  | { type: "INIT_PREVIEW"; canvasPreview: HTMLCanvasElement }
 
 type Dispatch = (action: Action) => void;
 
@@ -30,12 +33,14 @@ type State = {
   pattern: CanvasTexture | null;
   canvas: HTMLCanvasElement | null;
   canvasPreview: HTMLCanvasElement | null
+  repetitions: number;
 };
 
 const initialState = {
   pattern: null,
   canvas: null,
   canvasPreview: null,
+  repetitions: 1
 };
 
 const PatternContext = createContext<
@@ -44,10 +49,14 @@ const PatternContext = createContext<
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
+    case "INIT_PREVIEW":
+      return { ...state, canvasPreview: action.canvasPreview }
     case "SET_PATTERN":
       return { ...state, pattern: action.pattern, canvas: action.canvas, canvasPreview: action.canvasPreview };
     case "CLEAR_PATTERN":
       return { ...state, pattern: null, canvas: null };
+    case "SET_REPETITIONS":
+      return { ...state, repetitions: action.repetitions }
     default:
       return state;
   }
@@ -95,6 +104,14 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
 
   const { dispatch, state } = context;
 
+  useEffect(() => {
+    if (!canvasPreview) {
+      console.log("missing preview")
+      return
+    }
+    dispatch({ type: "INIT_PREVIEW", canvasPreview })
+  }, [canvasPreview])
+
   const uploadPattern = (e: React.FormEvent<HTMLInputElement>) => {
     const files = (e.target as HTMLInputElement).files;
     if (files === null || files.length === 0) {
@@ -113,22 +130,34 @@ export const useUpdatePattern = (canvasPreview: HTMLCanvasElement | null) => {
       if (!canvasPreview) {
         return console.error("canvas preview is missing");
       }
-      // const canvas = await createCanvas(e.target.result);
-      const canvas = await createCanvasCropped(e.target.result, 200, 200)
-      drawToPreview(e.target.result, canvasPreview)
+      const { canvas, img } = await createCanvasCropped(e.target.result, 200, 200)
+      drawToPreview(img, canvasPreview)
 
+      // This could just be created at export -- but there is some sanity in the redudancy at the moment
       const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
-      createEggMask(eggMask, canvas, 200, 200);
-      const pattern = createTexture(canvas, 7);
+      createEggMask(eggMask, canvas, 200, 200, state.repetitions);
+
+      const pattern = createTexture(canvas, state.repetitions);
       dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview });
       setUpdating(false);
     };
     reader.readAsDataURL(file);
   };
 
+  useEffect(() => {
+    if (!state.canvas || !state.canvasPreview) {
+      return;
+    }
+    const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
+    createEggMask(eggMask, state.canvas, 200, 200, state.repetitions);
+    const pattern = createTexture(state.canvas, state.repetitions)
+    dispatch({ type: "SET_PATTERN", canvas: state.canvas, pattern, canvasPreview: state.canvasPreview })
+  }, [state.repetitions])
+
   const clearPattern = () => dispatch({ type: "CLEAR_PATTERN" });
 
-  return { clearPattern, uploadPattern, pattern: state.pattern, updating, canvas: state.canvas };
+  const updatePatternRepetitions = (repetitions: number) => dispatch({ type: "SET_REPETITIONS", repetitions })
+  return { clearPattern, uploadPattern, updatePatternRepetitions, pattern: state.pattern, updating, canvas: state.canvas, repetitions: state.repetitions };
 };
 
 export const usePattern = () => {
@@ -143,7 +172,7 @@ export const usePattern = () => {
   return state.pattern;
 };
 
-export const useDraw = (canvas: HTMLCanvasElement | null) => {
+export const useDraw = (canvaas: HTMLCanvasElement | null) => {
   const context = useContext(PatternContext);
 
   if (context === undefined) {
@@ -151,7 +180,7 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
   }
 
   const { dispatch, state } = context;
-
+  const { canvasPreview: canvas } = state;
   useEffect(() => {
     if (!canvas) {
       return;
@@ -167,9 +196,9 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
     const w = canvas.width;
     const h = canvas.height;
 
-    ctx.rect(0, 0, w, h);
-    ctx.fillStyle = "white";
-    ctx.fill();
+    // ctx.rect(0, 0, w, h);
+    // ctx.fillStyle = "white";
+    // ctx.fill();
 
     const setMouse = (e: any) => {
       mousePos.x = e.touches ? e.touches[0].clientX : e.clientX;
@@ -197,7 +226,9 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
         ctx.closePath();
         ctx.stroke();
 
-        const pattern = createTexture(canvas, 7)
+        const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
+        createEggMask(eggMask, canvas, 200, 200, state.repetitions);
+        const pattern = createTexture(canvas, state.repetitions)
         dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview: canvas })
       }
       prevMouse.x = nX;
@@ -217,8 +248,10 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
         // ctx.fillStyle = colorRef.current;
         ctx.fillStyle = "black";
         ctx.fillRect(x, y, 5, 5);
-        const pattern = createTexture(canvas, 7);
+        const pattern = createTexture(canvas, state.repetitions);
         // TOD: Refactor?
+        const eggMask = document.getElementById("egg-mask") as HTMLImageElement;
+        createEggMask(eggMask, canvas, 200, 200, state.repetitions);
         dispatch({ type: "SET_PATTERN", canvas, pattern, canvasPreview: canvas });
       }
       mousePos.x = 0;
@@ -247,5 +280,5 @@ export const useDraw = (canvas: HTMLCanvasElement | null) => {
       canvas.removeEventListener("touchstart", onDown);
       canvas.removeEventListener("touchend", onUp);
     };
-  }, [canvas]);
+  }, [canvas, state.repetitions]);
 };

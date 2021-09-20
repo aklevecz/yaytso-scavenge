@@ -4,7 +4,7 @@ import { useOpenModal } from "../../contexts/ModalContext";
 import { useDraw, useUpdatePattern } from "../../contexts/PatternContext";
 import { useThreePatternUpdater, useThreeScene } from "../../contexts/ThreeContext";
 import { useCustomEgg, useUser } from "../../contexts/UserContext";
-import { EGGVG, EGG_MASK, PREVIEW_CANVAS_ID, ViewStates } from "./constants";
+import { EGGVG, EGG_MASK, PREVIEW_CANVAS_ID, REPEAT_CANVAS_ID, ViewStates } from "./constants";
 import { exportYaytso, exportVanilla } from "./services";
 import Buttons from "./Buttons";
 
@@ -20,7 +20,7 @@ export default function Egg() {
   const draw = useDraw(canvasRef.current);
   const { initScene, scene } = useThreeScene();
   useThreePatternUpdater();
-  const { uploadPattern, pattern, clearPattern, updating, canvas } = useUpdatePattern(
+  const { uploadPattern, updatePatternRepetitions, pattern, clearPattern, updating, canvas, repetitions } = useUpdatePattern(
     canvasRef.current
   );
   const { customEgg, clearEgg } = useCustomEgg();
@@ -74,7 +74,8 @@ export default function Egg() {
           gltfCID,
           name,
           description,
-          canvas
+          canvas,
+          repetitions
         });
       }
     );
@@ -83,6 +84,11 @@ export default function Egg() {
   return (
     <LayoutFullHeight>
       <div className="egg__container">
+        <input style={{ position: "absolute", top: 20, right: 20, width: 20 }} onChange={(e) => {
+          const value = e.target.value
+          if (!parseInt(value)) return;
+          updatePatternRepetitions(parseInt(value))
+        }} />
         <div className="canvas__container" ref={sceneContainer} />
         <div
           className="egg__details"
@@ -110,6 +116,7 @@ export default function Egg() {
           ref={canvasRef}
           id={PREVIEW_CANVAS_ID}
         ></canvas>
+        {/* <canvas width={200} height={200} id={REPEAT_CANVAS_ID} style={{ position: "absolute", top: 200, left: 0, border: "1px solid black" }} /> */}
       </div>
       {/* <button style={{ position: "absolute", top: 10, left: 10 }} onClick={() => openModal(ModalTypes.Mint, { metadata: {} })}>export</button> */}
     </LayoutFullHeight>
