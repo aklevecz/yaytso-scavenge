@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Button from "../../components/Button";
 import LoadingButton from "../../components/Button/LoadingButton";
 import { TxStates, useYaytsoContract } from "../../contexts/ContractContext";
@@ -130,7 +130,9 @@ export default function Mint() {
 
   const lay = async () => {
     setStep(Step.Minting);
+    console.log(metadata)
     const response = await layYaytso(metadata);
+    console.log(response)
     if (response.error) {
       setStep(Step.Error)
       setError(response.message)
@@ -152,11 +154,13 @@ export default function Mint() {
         </div>
       </BiAnim>
       <div className="modal__button-container">
-        {txState === TxStates.Idle && <Button name="Yes" onClick={lay} />}
-        {txState !== TxStates.Idle && txState !== TxStates.Completed && txState !== TxStates.Failed && <LoadingButton color="white" />}
-        {txState === TxStates.Completed && <Button name="Done" onClick={toggleModal} />}
+        {step !== Step.Error && (
+          <Fragment>
+            {txState === TxStates.Idle && <Button name="Yes" onClick={lay} />}
+            {txState !== TxStates.Idle && txState !== TxStates.Completed && txState !== TxStates.Failed && <LoadingButton color="white" />}
+            {txState === TxStates.Completed && <Button name="Done" onClick={toggleModal} />}
+          </Fragment>)}
         {step === Step.Error && <Button name="Ok" onClick={toggleModal} />}
-
       </div>
     </div>
   );

@@ -175,7 +175,7 @@ export const useYaytsoContract = () => {
 
   const layYaytso = async (meta: YaytsoMetaWeb2) => {
     if (!yaytsoContract || !signer) {
-      return;
+      return { error: true, message: "You need to have an Ethereum wallet connected!" }
     }
     const { patternHash, metaCID, svgCID } = meta;
     // const patternHash = wallet.yaytsoMeta[index].patternHash;

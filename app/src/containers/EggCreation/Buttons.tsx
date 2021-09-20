@@ -59,7 +59,9 @@ export default function Buttons({
   }
 
   if (viewState === ViewStates.Customized) {
-    return <Button name="Create" onClick={onExport} />;
+    return <Fragment><Button name="Create" onClick={onExport} />        <FloatingButtonContainer bottom={"20%"} right={"50%"} marginRight={-65}>
+      <Button name="Clear" onClick={reset} className="anti-state" />
+    </FloatingButtonContainer></Fragment>;
   }
 
   return (

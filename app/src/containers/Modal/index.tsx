@@ -59,12 +59,12 @@ export default function Modal() {
     }
   }, [open]);
 
-  // useEffect(() => {
-  //   if (!modal) {
-  //     return;
-  //   }
-  //   setMaxModalState(modal.maxState);
-  // }, [modalType, setMaxModalState, modal]);
+  useEffect(() => {
+    if (!modal) {
+      return;
+    }
+    setMaxModalState(modal.maxState);
+  }, [modalType, setMaxModalState, modal]);
 
   return createPortal(
     <div className={`modal__container ${display ? "open" : ""}`}>
@@ -80,9 +80,9 @@ export default function Modal() {
               <ChevronLeft />
             </button>
           )}
-          <button onClick={toggleModal} className="modal__close">
+          {/* <button onClick={toggleModal} className="modal__close">
             <CloseIcon />
-          </button>
+          </button> */}
           <div className="modal__content">{modal && modal.component}</div>
         </div>
       </CSSTransition>

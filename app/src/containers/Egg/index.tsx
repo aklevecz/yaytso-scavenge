@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 
 import "../../styles/egg-view.css";
 import { ModalTypes } from "../../contexts/types";
+import DotTyping from "../../components/Loading/DotTyping";
 
 export default function Egg() {
   const { eggId } = useParams<{ eggId: string }>()
@@ -19,13 +20,20 @@ export default function Egg() {
     if (!sceneContainer.current) {
       return;
     }
+    if (!metadata) {
+      return;
+    }
 
     const cleanup = initScene(sceneContainer.current, true);
 
     return () => cleanup();
-  }, [initScene]);
+  }, [initScene, metadata]);
   const onClick = () => openModal(ModalTypes.Mint, { metadata });
   const openEggInfo = () => openModal(ModalTypes.EggInfo, { metadata })
+
+  if (!metadata) {
+    return <DotTyping />
+  }
   return (
     <LayoutFullHeight>
       <div className="egg-view__container">

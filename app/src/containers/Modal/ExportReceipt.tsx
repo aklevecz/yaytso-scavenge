@@ -48,7 +48,7 @@ export default function ExportReceipt() {
   };
   return (
     <div>
-      <div className="modal__title">Your Beautiful Egg</div>
+      {/* <div className="modal__title">Your Beautiful Egg</div> */}
       <div className="modal__block columns" style={{ position: "relative", textAlign: "center", border: "1px solid black", margin: 20 }}>
         <TagText>{name}</TagText>
         {/* <div className="egg-container" style={{ width: "100%" }} /> */}

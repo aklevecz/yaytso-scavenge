@@ -20,8 +20,9 @@ export default function LayoutFullHeight({ children }: { children: JSX.Element |
 	useEffect(() => {
 		// setTimeout(checkHeight, 100)
 		checkHeight()
+		window.scrollTo(0, 0)
 	}, [location]);
 	return (
-		<div style={{ height }} className="layout-fullheight__container">{children}</div>
+		<div style={{ height, display: "flex", justifyContent: "center" }} className="layout-fullheight__container">{children}</div>
 	)
 }

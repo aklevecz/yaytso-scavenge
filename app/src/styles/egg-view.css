@@ -1,8 +1,8 @@
 .egg-view__container {
   height: 100%;
   position: relative;
-  /* max-width: 500px; */
-  margin: auto;
+  max-width: 700px;
+  width:100%;
 }
 
 .egg-view__canvas__container {

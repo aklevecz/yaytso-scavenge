@@ -10,7 +10,6 @@ import LoginButton from "../../components/Button/LoginButton";
 import LogoutButton from "../../components/Button/LogoutButton";
 import { WalletTypes } from "../../contexts/types";
 import { motion, useViewportScroll, useTransform } from "framer-motion";
-import { useState, useEffect } from "react";
 
 export default function Wallet() {
   const { wallet, disconnect } = useWallet();
@@ -19,7 +18,7 @@ export default function Wallet() {
   const { startProvider } = useWalletConnect();
 
   const { scrollYProgress, scrollY } = useViewportScroll();
-  const marginLeft = useTransform(scrollY, [0, 50], [10, window.innerWidth + 200]);
+  const marginLeft = useTransform(scrollY, [20, 50], [10, window.innerWidth + 200]);
   const marginTop = useTransform(scrollY, [0, 250], [0, -230]);
 
   return (

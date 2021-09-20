@@ -111,7 +111,7 @@ export default function Egg() {
           id={PREVIEW_CANVAS_ID}
         ></canvas>
       </div>
-      <button style={{ position: "absolute", top: 10, left: 10 }} onClick={() => openModal(ModalTypes.Mint, { metadata: {} })}>export</button>
+      {/* <button style={{ position: "absolute", top: 10, left: 10 }} onClick={() => openModal(ModalTypes.Mint, { metadata: {} })}>export</button> */}
     </LayoutFullHeight>
   );
 }
