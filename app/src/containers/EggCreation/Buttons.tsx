@@ -3,7 +3,6 @@ import Button from "../../components/Button";
 import FloatingButtonContainer from "../../components/Button/FloatingButtonContainer";
 import LoadingButton from "../../components/Button/LoadingButton";
 import { ModalTypes } from "../../contexts/types";
-import { isMobile } from "../../utils";
 import { ViewStates } from "./constants";
 
 type Props = {
@@ -59,7 +58,7 @@ export default function Buttons({
   }
 
   if (viewState === ViewStates.Customized) {
-    return <Fragment><Button name="Create" onClick={onExport} />        <FloatingButtonContainer bottom={"20%"} right={"50%"} marginRight={-65}>
+    return <Fragment><Button name="Create" onClick={onExport} />  <FloatingButtonContainer bottom={"20%"} right={"50%"} marginRight={-65}>
       <Button name="Clear" onClick={reset} className="anti-state" />
     </FloatingButtonContainer></Fragment>;
   }

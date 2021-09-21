@@ -102,8 +102,8 @@ export const useUpdateEgg = () => {
 
   const updateEgg = (params: EggParams) =>
     dispatch({ type: "UPDATE_EGG", params });
-
-  return { updateEgg };
+  console.log(state.egg)
+  return { updateEgg, egg: state.egg };
 };
 
 export const useCustomEgg = () => {

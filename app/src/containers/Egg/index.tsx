@@ -37,13 +37,21 @@ export default function Egg() {
     return <DotTyping />
   }
 
-  const deleteEgg = () => deleteYaytso(metadata.metaCID).then(success => {
-    if (success) {
-      history.push("/wallet")
-    } else {
-      alert("Oops something went wrong!")
+  // Confirmation modal
+  // Deletes it from NFT storage? (that is probably an API call)
+  const deleteEgg = () => {
+    const action = () => {
+      deleteYaytso(metadata.metaCID).then(success => {
+        if (success) {
+          history.push("/wallet")
+        } else {
+          alert("Oops something went wrong!")
+        }
+      })
     }
-  })
+    openModal(ModalTypes.ConfirmAction, { action, prompt: "you want to delete this yaytso?" })
+
+  }
   return (
     <LayoutFullHeight>
       <div className="egg-view__container">

@@ -8,6 +8,7 @@ type Props = {
   id?: string;
   width?: number | string;
   margin?: number | string;
+  padding?: number | string;
 };
 
 export default function Button({
@@ -18,13 +19,14 @@ export default function Button({
   id,
   width,
   margin,
+  padding
 }: Props) {
   return (
     <button
       id={id}
       className={`btn ${className} ${size}`}
       onClick={onClick}
-      style={{ margin, width }}
+      style={{ margin, padding, width }}
     >
       {name}
     </button>

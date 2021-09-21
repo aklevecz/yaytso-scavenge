@@ -9,6 +9,7 @@ export enum ModalTypes {
   Mint = "mint",
   ExportReceipt = "exportReceipt",
   EggInfo = "eggInfo",
+  ConfirmAction = "confirmAction",
 }
 
 export type Position = {

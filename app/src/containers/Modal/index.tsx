@@ -1,22 +1,22 @@
 import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
-import CloseIcon from "../../components/icons/CloseIcon";
 import {
   useModalOpen,
   useModalToggle,
   useModalType,
 } from "../../contexts/ModalContext";
+import { ModalTypes } from "../../contexts/types";
+
 import Info from "./Info";
 import CartonContent from "./CartonContent";
-import { useEffect, useRef, useState } from "react";
 import EggMaker from "./EggMaker";
 import Login from "./Login";
 import Mint from "./Mint";
 import ChevronLeft from "../../components/icons/ChevronLeft";
 import ExportReceipt from "./ExportReceipt";
 import EggInfo from "./EggInfo"
-
-import { ModalTypes } from "../../contexts/types";
+import ConfirmAction from "./ConfirmAction";
 
 const modalMap = {
   info: { component: <Info />, maxState: 0 },
@@ -33,6 +33,10 @@ const modalMap = {
   },
   eggInfo: {
     component: <EggInfo />,
+    maxState: 0
+  },
+  confirmAction: {
+    component: <ConfirmAction />,
     maxState: 0
   }
 };

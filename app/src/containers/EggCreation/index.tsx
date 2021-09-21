@@ -11,6 +11,7 @@ import Buttons from "./Buttons";
 import "../../styles/egg.css";
 import { ModalTypes } from "../../contexts/types";
 import LayoutFullHeight from "../../components/Layout/FullHeight";
+import Button from "../../components/Button";
 
 export default function Egg() {
   const [viewState, setViewState] = useState<ViewStates>(ViewStates.Blank);
@@ -84,18 +85,28 @@ export default function Egg() {
   return (
     <LayoutFullHeight>
       <div className="egg__container">
-        <input style={{ position: "absolute", top: 20, right: 20, width: 20 }} onChange={(e) => {
+        {/* <input style={{ position: "absolute", top: 20, right: 20, width: 20 }} onChange={(e) => {
           const value = e.target.value
           if (!parseInt(value)) return;
           updatePatternRepetitions(parseInt(value))
-        }} />
+        }} /> */}
+        <div className="slider__container">
+          <input onChange={e => {
+            const value = e.target.value
+            if (!parseInt(value)) return;
+            updatePatternRepetitions(parseInt(value))
+          }} type="range" min="1" max="100" value={repetitions} className="slider" id="myRange" />
+          <div>{repetitions}</div>
+        </div>
         <div className="canvas__container" ref={sceneContainer} />
         <div
           className="egg__details"
-          style={{ position: "absolute", right: 50, top: "5%", textAlign: "right" }}
         >
           <div>{name}</div>
           <div>{description}</div>
+          {customEgg.name && customEgg.description && (
+            <Button padding="0" width="unset" name="Edit" onClick={() => openModal(ModalTypes.EggMaker)} className="anti-state" />
+          )}
         </div>
         <div style={{ textAlign: "center" }}>
           <Buttons

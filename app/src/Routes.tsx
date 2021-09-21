@@ -18,11 +18,13 @@ const AppComponents = () => {
   useEffect(() => {
     if (noOverFlow.includes(location.pathname.split("/")[1])) {
       document.documentElement.style.overflow = "hidden"
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
+      (document.querySelector(".App") as HTMLDivElement).style.overflow = "hidden"
       document.getElementById("root")!.style.overflow = "hidden"
     } else {
       document.documentElement.style.overflow = "auto"
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = "auto";
+      (document.querySelector(".App") as HTMLDivElement).style.overflow = "auto"
       document.getElementById("root")!.style.overflow = "auto"
     }
   }, [location])

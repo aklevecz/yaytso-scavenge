@@ -42,12 +42,12 @@ export default function Wallet() {
                 )}
             </div>
           )}
-          <div className="wallet__phone">
+          {user.phone && <div className="wallet__phone">
             <div>{user.phone}</div>
             <div style={{ padding: 10, textAlign: "center" }}>
               {user.uid && <LogoutButton size="xs" />}
             </div>
-          </div>
+          </div>}
           {!isConnected && (
             <div
               className="wallet__connect-container"

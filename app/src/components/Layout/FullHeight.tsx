@@ -23,6 +23,6 @@ export default function LayoutFullHeight({ children }: { children: JSX.Element |
 		window.scrollTo(0, 0)
 	}, [location]);
 	return (
-		<div style={{ height, display: "flex", justifyContent: "center" }} className="layout-fullheight__container">{children}</div>
+		<div style={{ height, display: "flex", justifyContent: "center", overflow: "hidden" }} className="layout-fullheight__container">{children}</div>
 	)
 }

@@ -7,7 +7,7 @@ import { BiAnim } from "./Transitions";
 // have access to the call manipulating the child useEffect
 
 // Or this could be a generate component that takes an update function and viewDataMap
-export default function SlideModal({ propMap, updateCallback }: any) {
+export default function SlideModal({ propMap, updateCallback, values }: any) {
   // const [state, setState] = useState(0);
   const ref = useRef<HTMLInputElement>(null);
   const { modalState, onModalNext, maxState, toggleModal } = useModalToggle();
@@ -16,11 +16,12 @@ export default function SlideModal({ propMap, updateCallback }: any) {
 
   const props = propMap[view];
 
-  const onChange = (e: React.FormEvent<HTMLInputElement>) =>
-    (props.value = e.currentTarget.value);
+  const onChange = (e: React.FormEvent<HTMLInputElement>) => updateCallback({ [props.param]: e.currentTarget.value });
+
+  // (props.value = e.currentTarget.value);
 
   const update = () => {
-    updateCallback({ [props.param]: props.value });
+    // updateCallback({ [props.param]: props.value });
     // setState(state + 1);
     if (modalState < maxState) {
       onModalNext();
@@ -32,7 +33,7 @@ export default function SlideModal({ propMap, updateCallback }: any) {
   useEffect(() => {
     setTimeout(() => ref.current && ref.current.focus(), 100);
   }, []);
-
+  // console.log(values)
   // const back = () => {
   //   // setState(state - 1);
   // };
@@ -42,18 +43,22 @@ export default function SlideModal({ propMap, updateCallback }: any) {
         <div>
           <div className="modal__title">{props.cta}</div>
           <div className="modal__block">
-            <input
-              type="text"
-              onChange={onChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  update()
-                }
-              }}
-              autoFocus={true}
-              ref={ref}
-            ></input>
-          </div>
+            <div>
+              <div className="modal__description">{props.description}</div>
+              <div className="modal__input-container">
+                <input
+                  type="text"
+                  onChange={onChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      update()
+                    }
+                  }}
+                  autoFocus={true}
+                  ref={ref}
+                  value={values[props.param]}
+                ></input></div>
+            </div></div>
         </div>
       </BiAnim>
       <div className="modal__button-container">
