@@ -18,36 +18,45 @@ export default function Wallet() {
   const { startProvider } = useWalletConnect();
 
   const { scrollYProgress, scrollY } = useViewportScroll();
-  const marginLeft = useTransform(scrollY, [20, 50], [10, window.innerWidth + 200]);
+  const marginLeft = useTransform(
+    scrollY,
+    [50, 100],
+    [10, window.innerWidth + 200]
+  );
   const marginTop = useTransform(scrollY, [0, 250], [0, -230]);
 
   return (
     <div className="wallet__root">
-
       <div className="wallet__container">
         <motion.div style={{ marginLeft }} className="wallet__user-info">
           {/* <div className="wallet__user-info"> */}
           {wallet.connected && (
             <div className="wallet__address">
-              <div style={{ minWidth: 150, maxWidth: 150, margin: "auto" }}>{wallet.address}</div>
+              <div style={{ minWidth: 150, maxWidth: 150, margin: "auto" }}>
+                {wallet.address}
+              </div>
               {wallet.eth &&
                 wallet.eth.walletType === WalletTypes.WalletConnect && (
                   <Button
                     size="xs"
                     width="100%"
-                    margin="10px 0"
+                    display="block"
+                    maxWidth={150}
+                    margin="10px auto"
                     name="Disconnect"
                     onClick={disconnect}
                   />
                 )}
             </div>
           )}
-          {user.phone && <div className="wallet__phone">
-            <div>{user.phone}</div>
-            <div style={{ padding: 10, textAlign: "center" }}>
-              {user.uid && <LogoutButton size="xs" />}
+          {user.phone && (
+            <div className="wallet__phone">
+              <div>{user.phone}</div>
+              <div style={{ padding: 10, textAlign: "center" }}>
+                {user.uid && <LogoutButton size="xs" />}
+              </div>
             </div>
-          </div>}
+          )}
           {!isConnected && (
             <div
               className="wallet__connect-container"

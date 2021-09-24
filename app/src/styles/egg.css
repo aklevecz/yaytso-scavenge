@@ -7,10 +7,23 @@
   max-width: 700px;
 }
 
-.egg__details {
+.egg__preview-container {
   position: absolute;
+  top: 10px;
+}
+
+.egg__pen-wrapper {
+  width: 150px;
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.egg__details {
+  /* position: absolute;
   left: 20px;
-  top: 25%;
+  top: 25%; */
   font-size: 1.5rem;
 }
 
@@ -42,9 +55,9 @@
 }
 
 #preview-canvas {
-  position: absolute;
+  /* position: absolute;
   left: 10px;
-  top: 10px;
+  top: 10px; */
   border: 1px solid black;
   width: 130px;
   height: 130px;

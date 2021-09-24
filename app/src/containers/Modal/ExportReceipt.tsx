@@ -7,7 +7,6 @@ import { useModalToggle, useModalData } from "../../contexts/ModalContext";
 import { createEggMask } from "../../contexts/utils";
 import { EGGVG } from "../EggCreation/constants";
 
-
 export default function ExportReceipt() {
   const [egg, setEgg] = useState<any>(null);
   const { toggleModal, open } = useModalToggle();
@@ -29,7 +28,16 @@ export default function ExportReceipt() {
   return (
     <div>
       {/* <div className="modal__title">Your Beautiful Egg</div> */}
-      <div className="modal__block columns" style={{ position: "relative", textAlign: "center", border: "1px solid black", margin: 20 }}>
+      <div
+        className="modal__block columns"
+        style={{
+          position: "relative",
+          textAlign: "center",
+          border: "1px solid black",
+          margin: 20,
+          padding: 10,
+        }}
+      >
         <TagText>{name}</TagText>
         {/* <div className="egg-container" style={{ width: "100%" }} /> */}
         <EggMask visible={true} svgId={EGGVG + "2"} imgId={"eggMask2"} />

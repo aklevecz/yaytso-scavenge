@@ -11,16 +11,25 @@ type Props = {
   wallet: WalletState;
 };
 
-const NoEggs = () => <div style={{ fontSize: "1.5rem", width: "70%" }}><div>you haven't created any eggs yet!</div><p>go to the <Link style={{ color: "red" }} to="/egg">egg</Link> view to begin!</p></div>;
+const NoEggs = () => (
+  <div style={{ fontSize: "1.5rem", width: "70%" }}>
+    <div>you haven't created any eggs yet!</div>
+    <p>
+      go to the{" "}
+      <Link style={{ color: "red" }} to="/egg">
+        egg
+      </Link>{" "}
+      view to begin!
+    </p>
+  </div>
+);
 
 export default function Eggs({ wallet }: Props) {
-  const history = useHistory()
+  const history = useHistory();
   const { yaytsoMeta, metaFetched } = useYaytsoSVGs();
   const openModal = useOpenModal();
 
-
-  if (!metaFetched
-  ) {
+  if (!metaFetched) {
     return (
       <div style={{ marginTop: 100 }} className="loading-dot__container">
         <div className="dot-typing-inverse"></div>
@@ -29,21 +38,46 @@ export default function Eggs({ wallet }: Props) {
   }
   return (
     <Fragment>
-      <div className="wallet__title" style={{ display: "flex", justifyContent: "center" }}><TagText fontSize="2rem" padding={"10px 20px"}>YOUR YAYTSOS</TagText></div>
+      <div
+        className="wallet__title"
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <TagText fontSize="2rem" padding={"10px 20px"}>
+          YOUR YAYTSOS
+        </TagText>
+      </div>
       <div className="wallet__egg-container">
         {yaytsoMeta.map((metadata, i) => {
           const onClick = () => openModal(ModalTypes.Mint, { metadata });
-          const navigateToEgg = () => history.push(`/egg/${metadata.metaCID}`)
-          const hasWallet = wallet.eth && wallet.address
+          const navigateToEgg = () => history.push(`/egg/${metadata.metaCID}`);
+          const hasWallet = wallet.eth && wallet.address;
           const isNFT = metadata.nft;
           return (
             <div key={`yaytso${i}`} className="wallet__egg-wrapper">
-              <div style={{ fontSize: "2rem", fontWeight: "bold", display: "flex", justifyContent: "center" }}><TagText>{metadata.name}</TagText></div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <TagText>{metadata.name}</TagText>
+              </div>
               {/* <div dangerouslySetInnerHTML={{ __html: svg }} /> */}
               <EggImg cid={metadata.svgCID} navigateToEgg={navigateToEgg} />
               {hasWallet && !isNFT && (
-                <Button name="Mint" onClick={onClick} width="30%" size="flex" />)}
-              {isNFT && <div style={{ background: "black", color: "lime", fontWeight: "bold", fontSize: "2rem" }}>NFT</div>}
+                <Button name="Mint" onClick={onClick} width="30%" size="flex" />
+              )}
+              {isNFT && (
+                <div
+                  style={{
+                    color: "var(--red)",
+                    fontWeight: "bold",
+                    fontSize: "3.5rem",
+                  }}
+                >
+                  NFT
+                </div>
+              )}
             </div>
           );
         })}

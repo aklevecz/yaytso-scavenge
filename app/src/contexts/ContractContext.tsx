@@ -50,10 +50,10 @@ const provider =
   false
     ? new ethers.providers.JsonRpcProvider()
     : ethers.providers.getDefaultProvider(NETWORK, {
-      infura: process.env.REACT_APP_INFURA_KEY,
-      alchemy: process.env.REACT_APP_ALCHEMY_KEY,
-      etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
-    });
+        infura: process.env.REACT_APP_INFURA_KEY,
+        alchemy: process.env.REACT_APP_ALCHEMY_KEY,
+        etherscan: process.env.REACT_APP_ETHERSCAN_KEY,
+      });
 
 const initialState = {
   yaytsoContract: undefined,
@@ -175,7 +175,10 @@ export const useYaytsoContract = () => {
 
   const layYaytso = async (meta: YaytsoMetaWeb2) => {
     if (!yaytsoContract || !signer) {
-      return { error: true, message: "You need to have an Ethereum wallet connected!" }
+      return {
+        error: true,
+        message: "You need to have an Ethereum wallet connected!",
+      };
     }
     const { patternHash, metaCID, svgCID } = meta;
     // const patternHash = wallet.yaytsoMeta[index].patternHash;

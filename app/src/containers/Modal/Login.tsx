@@ -25,7 +25,9 @@ type PhoneProps = {
 const PhoneNumber = ({ phone, setPhone, submitPhone, loading }: PhoneProps) => {
   return (
     <div>
-      <div className="modal__description">Enter your phone number and you will be sent a code to sign in</div>
+      <div className="modal__description">
+        Enter your phone number and you will be sent a code to sign in
+      </div>
       <div className="modal__input-container">
         <PhoneInput
           className="phone-input"
@@ -41,7 +43,7 @@ const PhoneNumber = ({ phone, setPhone, submitPhone, loading }: PhoneProps) => {
         {!loading ? (
           <Button name="Submit" size="s" onClick={submitPhone} />
         ) : (
-          <LoadingButton color="white" />
+          <LoadingButton color="white" size="s" />
         )}
       </div>
     </div>
@@ -57,16 +59,22 @@ type ConfirmProps = {
 const Confirm = ({ onCodeChange, confirmCode, loading }: ConfirmProps) => {
   return (
     <div>
-      <div className="modal__description">Enter the 6 digit code that was just texted to you below!</div>
+      <div className="modal__description">
+        Enter the 6 digit code that was just texted to you below!
+      </div>
 
       <div className="modal__input-container">
-        <input style={{ margin: "auto", display: "block" }} onChange={onCodeChange} autoFocus={true}></input>
+        <input
+          style={{ margin: "auto", display: "block" }}
+          onChange={onCodeChange}
+          autoFocus={true}
+        ></input>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
         {!loading ? (
           <Button name="Confirm" onClick={confirmCode} />
         ) : (
-          <LoadingButton color="white" />
+          <LoadingButton color="white" size="s" />
         )}
       </div>
     </div>
